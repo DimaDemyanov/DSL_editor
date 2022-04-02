@@ -1,0 +1,106 @@
+digraph {
+compound=true;
+subgraph cluster0 {
+entry0[shape=circle label="" style=filled color=black]
+start_node0[label="start_node"]
+entry0 -> start_node0[label="entryTreeFlag/\nnode:=nextNode(tree)"]
+start_node0[label="start_node"]
+end_node0[label="end_node"]
+start_node0 -> end_node0[label="True/\nnode.entryNode()"]
+end_node0[label="end_node"]
+get_link0[label="get_link"]
+end_node0 -> get_link0[label="node.ifExitNode()/\n"]
+get_link0[label="get_link"]
+check_link0[label="check_link"]
+get_link0 -> check_link0[label="True/\nlink:=nextLink(tree)"]
+check_link0[label="check_link"]
+end_link0[label="end_link"]
+check_link0 -> end_link0[label="link!=\"\"/\nlink.entryLink()"]
+end_link0[label="end_link"]
+get_link0[label="get_link"]
+end_link0 -> get_link0[label="link.ifExitLink()/\n"]
+check_link0[label="check_link"]
+end_tree0[label="end_tree"]
+check_link0 -> end_tree0[label="else/\npopNodesStack()"]
+end_tree0[label="end_tree"]
+exit0[shape=doublecircle label="" style=filled color=black]
+end_tree0 -> exit0[label="True/\nexitTreeFlag:=True"]
+info0[shape=none label=
+            <<table border="0" cellspacing="0" cellborder="1">'
+            <tr> <td> <b> Tree </b> </td> </tr>
+            <tr><td>entryTreeFlag:=False</td></tr> <tr><td>exitTreeFlag:=False</td></tr> <tr><td>tree:=""</td></tr> <tr><td>node:=""</td></tr> <tr><td>link:=""</td></tr></table>>]
+}
+required0[shape=none,label=
+            <<table border="0" cellspacing="0" cellborder="1">'
+            <tr> <td> <b> Required </b> </td> </tr>
+            <tr><td>nextNode(x)</td></tr><tr><td>nextLink(x)</td></tr><tr><td>popNodesStack()</td></tr><tr><td>node.entryNode()</td></tr><tr><td>node.ifExitNode()</td></tr><tr><td>link.entryLink()</td></tr><tr><td>link.ifExitLink()</td></tr></table>>];
+required0 -> entry0 [lhead=cluster0 arrowtail=odot dir=back]
+provided0[shape=none,label=
+            <<table border="0" cellspacing="0" cellborder="1">'
+            <tr> <td> <b> Provided </b> </td> </tr>
+            <tr><td>entryTree()</td></tr><tr><td>ifExitTree()</td></tr></table>>];
+provided0 -> entry0 [lhead=cluster0 arrowtail=icurve dir=back]
+subgraph cluster1 {
+entry1[shape=circle label="" style=filled color=black]
+print_node1[label="print_node"]
+entry1 -> print_node1[label="entryNodeFlag/\npushNodesStack(node)"]
+print_node1[label="print_node"]
+check_link1[label="check_link"]
+print_node1 -> check_link1[label="True/\nprintNode()"]
+check_link1[label="check_link"]
+end_node1[label="end_node"]
+check_link1 -> end_node1[label="sizeNodesStack()>1/\nprintLink(popLinkStack())"]
+end_node1[label="end_node"]
+exit1[shape=doublecircle label="" style=filled color=black]
+end_node1 -> exit1[label="True/\nexitNodeFlag:=True"]
+check_link1[label="check_link"]
+exit1[shape=doublecircle label="" style=filled color=black]
+check_link1 -> exit1[label="else/\nexitNodeFlag:=True"]
+inner1[shape=none,label=
+            <<table border="0" cellspacing="0" cellborder="1">'
+            <tr> <td> <b> Inner </b> </td> </tr>
+            <tr><td>printNode()</td></tr><tr><td>printLink(link)</td></tr></table>>];
+info1[shape=none label=
+            <<table border="0" cellspacing="0" cellborder="1">'
+            <tr> <td> <b> Node </b> </td> </tr>
+            <tr><td>entryNodeFlag:=False</td></tr> <tr><td>exitNodeFlag:=False</td></tr> <tr><td>node:=""</td></tr></table>>]
+}
+required1[shape=none,label=
+            <<table border="0" cellspacing="0" cellborder="1">'
+            <tr> <td> <b> Required </b> </td> </tr>
+            <tr><td>popLinkStack()</td></tr><tr><td>pushNodesStack(x)</td></tr><tr><td>sizeNodeStack()</td></tr></table>>];
+required1 -> entry1 [lhead=cluster1 arrowtail=odot dir=back]
+provided1[shape=none,label=
+            <<table border="0" cellspacing="0" cellborder="1">'
+            <tr> <td> <b> Provided </b> </td> </tr>
+            <tr><td>entryNode()</td></tr><tr><td>ifExitNode()</td></tr></table>>];
+provided1 -> entry1 [lhead=cluster1 arrowtail=icurve dir=back]
+subgraph cluster2 {
+entry2[shape=circle label="" style=filled color=black]
+get_tree2[label="get_tree"]
+entry2 -> get_tree2[label="entryLinkFlag/\npushLinkStack(link)"]
+get_tree2[label="get_tree"]
+start_tree2[label="start_tree"]
+get_tree2 -> start_tree2[label="True/\ntree:=nextTree(link)"]
+start_tree2[label="start_tree"]
+end_tree2[label="end_tree"]
+start_tree2 -> end_tree2[label="True/\ntree.entryTree()"]
+end_tree2[label="end_tree"]
+exit2[shape=doublecircle label="" style=filled color=black]
+end_tree2 -> exit2[label="tree.ifExitTree()/\nexitLinkFlag:=True"]
+info2[shape=none label=
+            <<table border="0" cellspacing="0" cellborder="1">'
+            <tr> <td> <b> Link </b> </td> </tr>
+            <tr><td>entryLinkFlag:=False</td></tr> <tr><td>exitLinkFlag:=False</td></tr> <tr><td>link:=""</td></tr> <tr><td>tree:=""</td></tr></table>>]
+}
+required2[shape=none,label=
+            <<table border="0" cellspacing="0" cellborder="1">'
+            <tr> <td> <b> Required </b> </td> </tr>
+            <tr><td>nextTree(x)</td></tr><tr><td>pushLinkStack(link)</td></tr><tr><td>tree.entryTree()</td></tr><tr><td>tree.ifExitTree()</td></tr></table>>];
+required2 -> entry2 [lhead=cluster2 arrowtail=odot dir=back]
+provided2[shape=none,label=
+            <<table border="0" cellspacing="0" cellborder="1">'
+            <tr> <td> <b> Provided </b> </td> </tr>
+            <tr><td>entryLink()</td></tr><tr><td>ifExitLink()</td></tr></table>>];
+provided2 -> entry2 [lhead=cluster2 arrowtail=icurve dir=back]
+}
