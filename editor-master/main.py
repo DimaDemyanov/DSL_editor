@@ -5,12 +5,18 @@ from flask_cors import CORS
 from Tree.buildAST import buildAST, getInterpreter
 from symantic.symantic import buildDiagram
 from symantic.symantic import buildCode
+from healthcheck import HealthCheck, EnvironmentDump
 
 app = Flask(__name__)
 CORS(app)
 # app.config['DEBUG'] = True
 app.config['DEBUG'] = False
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
+
+health = HealthCheck()
+envdump = EnvironmentDump()
+app.add_url_rule("/healthcheck", "healthcheck", view_func=lambda: health.run())
+app.add_url_rule("/environment", "environment", view_func=lambda: envdump.run())
 
 @app.route("/ast", methods=['POST'])
 def hello():
