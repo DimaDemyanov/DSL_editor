@@ -2,7 +2,7 @@ from flask import Flask
 from flask import request
 from flask import jsonify
 from flask_cors import CORS
-from tree1.buildAST import buildAST, getInterpreter
+from Tree.buildAST import buildAST, getInterpreter
 from symantic.symantic import buildDiagram
 from symantic.symantic import buildCode
 
@@ -10,7 +10,7 @@ app = Flask(__name__)
 CORS(app)
 # app.config['DEBUG'] = True
 app.config['DEBUG'] = False
-
+app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
 
 @app.route("/ast", methods=['POST'])
 def hello():
@@ -55,4 +55,4 @@ def diagram():
 
 
 if __name__ == "__main__":
-    app.run(port=8083)
+    app.run(host="0.0.0.0", port=8083)
