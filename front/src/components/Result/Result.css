@@ -1,0 +1,21 @@
+.container {
+  height: 100%;
+  width: 100%;
+}
+
+.row {
+  display: flex;
+  margin: auto;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.button {
+  margin: 1em;
+  display: flex;
+}
+
+.error {
+  color: #dc4242;
+}
