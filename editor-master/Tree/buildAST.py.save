@@ -1,0 +1,94 @@
+import subprocess
+import os
+import shutil
+import fileinput
+import re
+from graphviz import Source, render
+
+def findNameAndStartToken(syntax):
+    regex = r"grammar\s+([A-Z][A-Z0-9_]*)\s*;[\n\s]*([A-Z][A-Z0-9_]*)"
+    search = re.search(regex, syntax, re.MULTILINE | re.IGNORECASE)
+    return (search.group(1), search.group(2))
+
+
+
+def findFirstNode(syntax):
+    words = syntax.split(' ')
+    ind = -1
+    for i, s in enumerate(words):
+        if ':' in s:
+              ind = i
+              break
+    if words[ind] == ':': #node : symbol
+        return words[ind - 1]
+    if words[ind].startswith(':'): #node :symbol
+        return words[ind - 1]
+    if words[ind].endswith(':'): #node: symbol
+        return words[ind].rstrip(':')
+    if ':' in words[ind]: #node:symbol
+        end = words[ind].find(':')
+        return words[ind][:end]
+
+
+def createFiles(source, syntax, grammarName):
+    if not os.path.exists(grammarName):
+        os.mkdir(grammarName)
+    with open(os.path.join(grammarName, grammarName + '.g4'), 'w') as temp_file:
+        temp_file.write(syntax)
+    with open(os.path.join(grammarName, 'program'), 'w') as temp_file:
+        temp_file.write(source)
+
+
+def makeTemplate(grammarName, firstNode):
+    shutil.copyfile(
+        os.path.join('tree', 'template'),
+        os.path.join(grammarName, 'template.py'))
+    s = open(os.path.join(grammarName, 'template.py')).read()
+    s = s.replace('(grammarName)', grammarName)
+    s = s.replace('(firstNode)', firstNode)
+    f = open(os.path.join(grammarName, 'template.py'), 'w')
+    f.write(s)
+    f.close()
+
+
+def buildAST(source, syntax):
+
+    try:
+        (grammarName, firstNode) = findNameAndStartToken(syntax)
+    except Exception:
+        print('file format error')
+        return 'file format error', -1
+
+    try:
+        createFiles(source, syntax, grammarName)
+    except Exception:
+        print('file system error')
+        return 'file system error', -1
+
+    try:
+        subprocess.call(['antlr4', '-Dlanguage=Python3', grammarName + '.g4'], cwd=grammarName)
+    except Exception:
+        print('antlr error')
+        return 'antlr error', -1
+
+    try:
+        makeTemplate(grammarName, firstNode)
+        subprocess.check_output(['python3', 'template.py', 'program'], cwd=grammarName)
+    except Exception as m:
+        regex = r"grammar\s+([A-Z][A-Z0-9_]*)\s*;[\n\s]*([A-Z][A-Z0-9_]*)"
+        search = re.search(, syntax, re.MULTILINE | re.IGNORECASE)
+    return (search.group(1), search.group(2))
+        print(str(m))
+        return str(m), -1
+
+    try:
+        graph = Source.from_file(grammarName + '/' + grammarName + '.dot')
+        graph.render(filename=grammarName, directory=grammarName, format='svg')
+        shutil.copyfile(
+            os.path.join(grammarName, grammarName + '.svg'),
+            os.path.join('/var/www/html/build/static', grammarName + '.svg'))
+    except Exception:
+        print('error while creating png file')
+        return 'error while creating png file', -1
+
+    return os.path.join('static', grammarName + '.svg'), 0

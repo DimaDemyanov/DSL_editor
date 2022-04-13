@@ -6,7 +6,7 @@ docker build -t dsl-editor-server-image:<some-tag-id> .
 
 docker run -d -p 127.0.0.1:8083:8083 --name dsl-editor-app dsl-editor-server-image:<some-tag-id>
 
-**Push images to Amazon ECR**  
+**Push images to Amazon ECR (Server)**  
 First get password: 
 ```aws ecr get-login-password --region us-east-1```
 
@@ -16,3 +16,30 @@ Then login to registry (from git bash):
 docker tag dsl-editor-server-image:0003 099405913193.dkr.ecr.us-east-1.amazonaws.com/dsl-editor-image-repository:dsl-editor-server-image-0003
 
 docker push 099405913193.dkr.ecr.us-east-1.amazonaws.com/dsl-editor-image-repository:dsl-editor-server-image-0003
+
+**To start DSL editor front in docker container use the following commands:** 
+
+cd front
+
+docker build -t dsl-editor-front-image:<some-tag-id> .
+
+docker run -d -p 127.0.0.1:3000:3000 --name dsl-editor-front-app dsl-editor-front-image:<some-tag-id>
+
+**Push images to Amazon ECR (Front)**  
+First get password: 
+```aws ecr get-login-password --region us-east-1```
+
+Then login to registry (from git bash): 
+```winpty docker login --username AWS --password eyJwYXlsb2FkIjoieGE1MHFLdlVUeGduNlVHaWlEK01ydnpWanl1emlFbkg0ZkRtWUhFNWxVa25scUtzNlZjWFJFNFlwNHAyT1BCNGhYNHl6MHJtRm9VY3JVcE4yQzk0T3RQb0RXeDdiOVlQMzZRclhYTk1BYVRBemRTNVI4aWhFU2JYd3hrdHFiTkN6aWlpYU10SFFEcDMrWUZpVEoxbVQ3NUUzczU1LzgzZ3lUMzRSejJ5VkNZNTFNRkNWVFdyQWhIMTN1VzJHVVJRY201aEk4dkhQVEE1VEo4a3ZOS2M3VjBmRnovSU5qdWpXYVhYZVBVVVkxN0Z2cGlLcjRzbjlwN0RlRkNKNVh1WU1iTFpIaStFQ2RmM3l6T0pZR2UxNmxTRlpCSzJxUHpmbFIxMmMxZGpTMEhaWFI4cVJ0RVg1bXJzZDlxZ2NwOGd5cDhWeUlCS3VLcjRRbW5MV2Yvanh6UHBxRWh5MGNHUkwyRiswZTNjbFFCTjhocTIwTXRQdU9mNTRkVUV1alV3YzA2aFNYZTAxMzNMU3pka2piWGcrQUhoUm9TVm5tZGtaTDZRNWpiMW0wTEFScjFSWmZwMkQzS3dpOGJPVnF3NHVGcDBHd256ME5DNFduQk9tMmM2RkExaHRpbFg5dUFuckYvZWM2elY0SmJzK2FyOGREc0MreStuYWtVTStvM0ZMTEJZZEpaNW5GK1F4SFJOcXdNaVY2bXpTK2hWVFAzaW4zQ1YydE13NllIM1lNVkZlWmFlK3ZTRG5WMTdENEwxRzdVN0V2cFM4VVU0NTVEanVVazZCZ1Z2ajJZTCtSVVRBOGNrSHRvN3ZxRkFFMDJpUTFoRzhiOGZKOWFPNlBWbGtwWm1lekdpRmcyS21jMnowQ1dIV1dtVENFcUR3YzZQcXk5ZjU3c2NnODB0c2xwNnVldVc0M0E3U2wvOXNHVUljWU1kMXp3cXkybXRpNDFaN3lrNzJjdWY3ejFuZkZmMXhyUlNNUDZqdjdMZys5T0d1Wk9yS1BGVXJkaHZ1QURna3pvQTd5V2NQbWh6S21UL01VTTV3MXdva3dXbEdKNzBqSFFQSzN0SGQ0aXByMUJxTjk2SUtEK09FenJabGl4RWNEd2dTNXNJOVdDZ29YNS90akRha2YxQ3VZVUhPQTNnd3NGTWgzT29pZkFZTW9TMHk3V0U1R1JBL2tRSTdoZ0VHZ0padFRoVTJKcDJ1NG1uQ3BhYWdWNjBhczZVbXMyaEIwZEdqLzVGMXpITXlHdGhXZC9PY0hJbXpTS0JUZDdPS0FWVHEzUTNCY09PS2xxYTE1dm1BNG5QRE1ZTGx3dTd3NFRteElOMU5VV3Yzb0NrL1NvT2FkS1dFdCtyREYrWjdJUHZCZDViaFVOMHhVSE9EWWRZUldrSHNCdlE4bzB4S0E9PSIsImRhdGFrZXkiOiJBUUVCQUhod20wWWFJU0plUnRKbTVuMUc2dXFlZWtYdW9YWFBlNVVGY2U5UnE4LzE0d0FBQUg0d2ZBWUpLb1pJaHZjTkFRY0dvRzh3YlFJQkFEQm9CZ2txaGtpRzl3MEJCd0V3SGdZSllJWklBV1VEQkFFdU1CRUVERXlrWFVBOG9NMS9WT3BtNEFJQkVJQTdDdncwZnJlaXF4dHpiVWZ4RXVjdElLR09LSE11cUtESjFhaW84ZUY4Q2JCbi9sUmtkOWxTUzVZM2F6aE5yLzk4dnJkYkczZng3NGcyQ244PSIsInZlcnNpb24iOiIyIiwidHlwZSI6IkRBVEFfS0VZIiwiZXhwaXJhdGlvbiI6MTY0OTg0MTE2NX0= 099405913193.dkr.ecr.us-east-1.amazonaws.com```
+
+docker tag dsl-editor-front-image:0001 099405913193.dkr.ecr.us-east-1.amazonaws.com/dsl-editor-image-repository:dsl-editor-front-image-0001
+
+docker push 099405913193.dkr.ecr.us-east-1.amazonaws.com/dsl-editor-image-repository:dsl-editor-front-image-0001
+
+**AWS info**
+
+To set up DNS to EC2 instance please follow the instruction:
+https://docs.amazonaws.cn/en_us/AWSEC2/latest/UserGuide/dynamic-dns.html
+
+Current DNS is provided by:
+https://www.noip.com/

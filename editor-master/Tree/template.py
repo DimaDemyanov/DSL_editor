@@ -1,7 +1,3 @@
-# That file was generated automatically with DSL editor
-# The moment of generation: 13/04/2022 13:42:48
-
-
 import sys
 from antlr4 import *
 from antlr4.Utils import escapeWhitespace
