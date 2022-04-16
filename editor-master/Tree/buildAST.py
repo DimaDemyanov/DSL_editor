@@ -57,7 +57,7 @@ def createFiles(source, syntax, grammarName):
 
 def makeTemplate(grammarName, firstNode):
     shutil.copyfile(
-        os.path.join('tree', 'template.py'),
+        os.path.join('Tree', 'template.py'),
         os.path.join(grammarName, 'interpreter.py'))
     s = open(os.path.join(grammarName, 'interpreter.py')).read()
     s = s.replace('(grammarName)', grammarName)
@@ -70,6 +70,8 @@ def makeTemplate(grammarName, firstNode):
 
 
 def buildGrammar(source, syntax):
+    print('Getting grammar name and the first token')
+
     try:
         (grammarName, firstNode) = findNameAndStartToken(syntax)
     except Exception as m:
@@ -77,6 +79,7 @@ def buildGrammar(source, syntax):
         print('file format error')
         return 'file format error', -1, None
 
+    print('Saving source and syntax')
     try:
         createFiles(source, syntax, grammarName)
     except Exception as m:
@@ -84,6 +87,7 @@ def buildGrammar(source, syntax):
         print('file system error')
         return 'file system error', -1, None
 
+    print('Processing syntax with ANTLR')
     try:
         subprocess.call([ANTLR_LAUNCH, '-Dlanguage=Python3', grammarName + '.g4'], cwd=grammarName, shell=IS_WINDOWS)
     except Exception as m:
@@ -100,25 +104,31 @@ def buildAST(source, syntax):
         return grammarName, rc
     try:
         makeTemplate(grammarName, firstNode)
-        x = subprocess.check_output([PYTHON_LAUNCH, 'interpreter.py', 'program'], stderr=subprocess.STDOUT,
+        subprocess.check_output([PYTHON_LAUNCH, 'interpreter.py', 'program'], stderr=subprocess.STDOUT,
                                     cwd=grammarName)
         print("Subprocess check_output finished ")
     except Exception as m:
+        print(m)
         regex = r"(^Exception: line .*$)"
         s = re.findall(regex, m.output.decode('utf-8'), re.MULTILINE | re.IGNORECASE)
         return (s[0], -1) if len(s) > 0 else ("error while parse syntax", 1)
     try:
         graph = Source.from_file(os.path.join(grammarName, grammarName + '.dot'))
         graph.render(filename=grammarName, directory=grammarName, format='svg')  # raises exception
+
+        svg_picture_name = 'AST/' + grammarName + '.svg'
+
+        dest_path = os.path.join('public/', svg_picture_name)
+        os.makedirs(os.path.dirname(dest_path), exist_ok=True)
         shutil.copyfile(
             os.path.join(grammarName, grammarName + '.svg'),
-            os.path.join('..', 'front', 'public', grammarName + '.svg'))
+            dest_path)
     except Exception as m:
         print(m)
         print('error while creating png file')
         return 'error while creating png file', -1
 
-    return (grammarName + '.svg'), 0
+    return svg_picture_name, 0
 
 
 def getInterpreter(source, syntax):
@@ -135,19 +145,23 @@ def getInterpreter(source, syntax):
         return "Cannot make template.py", -1
     try:
         # the folder to be archived is "grammarName"
-        target_path = os.path.join('..', 'front', 'public', grammarName)
         archive_ext = 'zip'
+        interpreter_archive_name = 'interpreter/' + grammarName + '.' + archive_ext
+
+        target_path = os.path.join('public/', interpreter_archive_name)
         # need to create archive in editor-master or Flask can't find it
         shutil.make_archive(grammarName, archive_ext, grammarName)
         # NOTE: if archive_ext == 'gztar', should repair target name
         # (archive_ext is not '.tar.gz' in this case)
         sendable_archive_name = grammarName + '.' + archive_ext
         # copy archive to the front/public, too
+        os.makedirs(os.path.dirname(target_path), exist_ok=True)
+
         shutil.copyfile(grammarName + '.' + archive_ext,
-                        target_path + '.' + archive_ext)
+                        target_path)
     except Exception as m:
         print('error while creating archive')
         print(m)
         return 'error while creating archive', -1
 
-    return sendable_archive_name, 0
+    return interpreter_archive_name, 0
