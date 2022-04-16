@@ -131,9 +131,12 @@ STATE
   }
 
   const SERVER_URL = process.env.REACT_APP_SERVER_URL
-  const FRONT_URL = 'http://127.0.0.1:3000'
-
+  const FRONT_URL = process.env.REACT_APP_FRONT_URL
+  
   const AST_URL = SERVER_URL + '/ast'
+  const INTERPRETER_URL = SERVER_URL + '/interpreter'
+  const FILES_URL = SERVER_URL + '/files' 
+  const CODE_URL = SERVER_URL + '/code' 
 
   const error = {
     value: ''
@@ -160,39 +163,11 @@ STATE
 
     let response = await request.json();
     console.log(response)
-    console.log(JSON.parse(response))
-    // let result = JSON.parse(response)
-    if (response.error === 0) {
-      window.open(FRONT_URL + '/' + response.info)
-      document.getElementById('errorMsg').innerText = ""
-    }
-    else {
-      document.getElementById('errorMsg').innerText = response.info
-    }
-  }
-
-  const onClickCode = async (e) => {
-    save(refLU.current.editor.getValue(),
-      refLD.current.editor.getValue(),
-      refRU.current.editor.getValue())
-    let request = await fetch(SERVER_URL + '/code', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-      body: JSON.stringify({
-        "symantic": refRU.current.editor.getValue()
-      })
-    }
-    );
-
-    let response = await request.json();
-    // console.log(response)
     // console.log(JSON.parse(response))
     // let result = JSON.parse(response)
     if (response.error === 0) {
-      window.open(FRONT_URL + '/' + response.info)
+      console.log('Opening ' + FILES_URL + '/' + response.info)
+      window.open(FILES_URL + '/' + response.info)
       document.getElementById('errorMsg').innerText = ""
     }
     else {
@@ -200,14 +175,14 @@ STATE
     }
   }
 
-  const onClickINTERPRETER = async (e) => {
+  const onClickInterpreter = async (e) => {
     save(refLU.current.editor.getValue(),
       refLD.current.editor.getValue(),
       refRU.current.editor.getValue())
 
-      console.log('Sending request to build interpreter ' + AST_URL)
+    console.log('Sending request to build interpreter ' + INTERPRETER_URL)
 
-    let request = await fetch(SERVER_URL + '/interpreter', {
+    let request = await fetch(INTERPRETER_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -222,7 +197,41 @@ STATE
 
     let response = await request.json();
     if (response.error === 0) {
-      window.open(FRONT_URL + '/' + response.info)
+      console.log('Opening ' + FILES_URL + '/' + response.info)
+      window.open(FILES_URL + '/' + response.info)
+      document.getElementById('errorMsg').innerText = ""
+    }
+    else {
+      document.getElementById('errorMsg').innerText = response.info
+    }
+  }
+
+  const onClickCode = async (e) => {
+    save(refLU.current.editor.getValue(),
+      refLD.current.editor.getValue(),
+      refRU.current.editor.getValue())
+
+    console.log('Sending request to build interpreter ' + CODE_URL)
+
+    let request = await fetch(CODE_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({
+        "symantic": refRU.current.editor.getValue()
+      })
+    }
+    );
+
+    let response = await request.json();
+    console.log(response)
+    // console.log(JSON.parse(response))
+    // let result = JSON.parse(response)
+    if (response.error === 0) {
+      console.log('Opening ' + FILES_URL + '/' + response.info)      
+      window.open(FILES_URL + '/' + response.info)
       document.getElementById('errorMsg').innerText = ""
     }
     else {
@@ -251,7 +260,8 @@ STATE
     // console.log(JSON.parse(response))
     // let result = JSON.parse(response)
     if (response.error === 0) {
-      window.open(FRONT_URL + '/' + response.info)
+      console.log('Opening ' + FILES_URL + '/' + response.info)
+      window.open(FILES_URL + '/' + response.info)
       document.getElementById('errorMsg').innerText = ""
     }
     else {
@@ -285,7 +295,7 @@ STATE
             <SourceCode fRef={refRU} value={localStorage.getItem("semanticsExample") ? localStorage.getItem("semanticsExample") : semanticsExample} />
           </Pane>
           <Pane>
-            <Result onClickAST={onClickAST} onClickINTERPRETER={onClickINTERPRETER} onClickCode={onClickCode} onClickDiagram={onClickDiagram} error={error} />
+            <Result onClickAST={onClickAST} onClickInterpreter={onClickInterpreter} onClickCode={onClickCode} onClickDiagram={onClickDiagram} error={error} />
           </Pane>
         </SplitPane>
       </SplitPane>
