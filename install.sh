@@ -3,17 +3,10 @@
 # Run this script only at once to setup environment for Editor
 
 # install Graphviz
-sudo apt-get install graphviz
-
-# install ANTLR
-sudo apt-get install antlr4
-
-# install python requirements
-cd editor-master
-pip3 install -r requirements.txt
+./editor-master/install.sh
 
 # install node dependencies
-cd ../front
+cd front
 npm install
 
 # report everything's fine

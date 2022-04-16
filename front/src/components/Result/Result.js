@@ -12,7 +12,7 @@ export function Result(props) {
             <Button variant="contained" color="primary" onClick={props.onClickAST}>AST</Button>
           </div>
           <div className="button">
-            <Button variant="contained" color="primary" onClick={props.onClickINTERPRETER}>INTERPRETER</Button>
+            <Button variant="contained" color="primary" onClick={props.onClickInterpreter}>INTERPRETER</Button>
           </div>
           <div className="button">
             <Button variant="contained" color="primary" onClick={props.onClickCode}>Code</Button>

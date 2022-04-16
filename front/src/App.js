@@ -1,7 +1,6 @@
 import React, { useRef, useState } from 'react';
 import SplitPane from 'react-split-pane';
 import Pane from 'react-split-pane/lib/Pane';
-// import Button from
 import { SourceCode } from './components/SourceCode'
 import { Result } from './components/Result'
 import logo from './logo.svg';
@@ -14,10 +13,10 @@ function onChange(newValue) {
   console.log("change", newValue);
 }
 
-function save(sourceCodeExample, syntaxExample, semanticsExample){
-    localStorage.setItem("sourceCodeExample", sourceCodeExample)
-    localStorage.setItem("syntaxExample", syntaxExample)
-    localStorage.setItem("semanticsExample", semanticsExample)
+function save(sourceCodeExample, syntaxExample, semanticsExample) {
+  localStorage.setItem("sourceCodeExample", sourceCodeExample)
+  localStorage.setItem("syntaxExample", syntaxExample)
+  localStorage.setItem("semanticsExample", semanticsExample)
 }
 
 
@@ -27,7 +26,7 @@ function App() {
   const refRU = useRef(null)
 
   const sourceCodeExample =
-  `( [ + {shape=circle} ]
+    `( [ + {shape=circle} ]
 
   < 0 {color=red} >
   ( [ A ] )
@@ -54,7 +53,7 @@ function App() {
     SYMBOL: ~( '(' | ')' | '[' | ']' | '<' | '>' | '{' | '}' );`
 
   const semanticsExample =
-`Tree
+    `Tree
 VAR
   entryTreeFlag := False
   exitTreeFlag := False
@@ -128,27 +127,29 @@ STATE
 `
 
   const editorOnResize = (...refs) => (e) => {
-    refs.forEach((ref) => {ref.current.editor.resize()})
+    refs.forEach((ref) => { ref.current.editor.resize() })
   }
 
-  const serverUrl = 'http://127.0.0.1:8083'
-  const frontUrl = 'http://127.0.0.1:3000'
+  const SERVER_URL = process.env.REACT_APP_SERVER_URL
+  const FRONT_URL = process.env.REACT_APP_FRONT_URL
+  
+  const AST_URL = SERVER_URL + '/ast'
+  const INTERPRETER_URL = SERVER_URL + '/interpreter'
+  const FILES_URL = SERVER_URL + '/files' 
+  const CODE_URL = SERVER_URL + '/code' 
 
   const error = {
     value: ''
   }
 
-  // var [error, setError] = useState({
-  //   value: 'Будьте любезны, напишите сочинение о вашем любимом DOM-элементе.'
-  // })
-
-
   const onClickAST = async (e) => {
     save(refLU.current.editor.getValue(),
-         refLD.current.editor.getValue(),
-         refRU.current.editor.getValue())
+    refLD.current.editor.getValue(),
+    refRU.current.editor.getValue())
     
-    let request = await fetch(serverUrl + '/ast', {
+    console.log('Sending request to build AST ' + AST_URL)
+
+    let request = await fetch(AST_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -156,103 +157,116 @@ STATE
       },
       body: JSON.stringify({
         "source": refLU.current.editor.getValue(),
-        "syntax": refLD.current.editor.getValue() })
-      }
-      );
+        "syntax": refLD.current.editor.getValue()
+      })
+    });
 
-      let response = await request.json();
-      // console.log(response)
-      // console.log(JSON.parse(response))
-      // let result = JSON.parse(response)
-      if (response.error === 0){
-        window.open(frontUrl + '/' + response.info)
-        document.getElementById('errorMsg').innerText = ""
-      }
-      else {
-        document.getElementById('errorMsg').innerText = response.info
-      }
+    let response = await request.json();
+    console.log(response)
+    // console.log(JSON.parse(response))
+    // let result = JSON.parse(response)
+    if (response.error === 0) {
+      console.log('Opening ' + FILES_URL + '/' + response.info)
+      window.open(FILES_URL + '/' + response.info)
+      document.getElementById('errorMsg').innerText = ""
+    }
+    else {
+      document.getElementById('errorMsg').innerText = response.info
+    }
+  }
+
+  const onClickInterpreter = async (e) => {
+    save(refLU.current.editor.getValue(),
+      refLD.current.editor.getValue(),
+      refRU.current.editor.getValue())
+
+    console.log('Sending request to build interpreter ' + INTERPRETER_URL)
+
+    let request = await fetch(INTERPRETER_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({
+        "source": refLU.current.editor.getValue(),
+        "syntax": refLD.current.editor.getValue()
+      })
+    }
+    );
+
+    let response = await request.json();
+    if (response.error === 0) {
+      console.log('Opening ' + FILES_URL + '/' + response.info)
+      window.open(FILES_URL + '/' + response.info)
+      document.getElementById('errorMsg').innerText = ""
+    }
+    else {
+      document.getElementById('errorMsg').innerText = response.info
+    }
   }
 
   const onClickCode = async (e) => {
     save(refLU.current.editor.getValue(),
-         refLD.current.editor.getValue(),
-         refRU.current.editor.getValue())
-    let request = await fetch(serverUrl + '/code', {
+      refLD.current.editor.getValue(),
+      refRU.current.editor.getValue())
+
+    console.log('Sending request to build interpreter ' + CODE_URL)
+
+    let request = await fetch(CODE_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       },
       body: JSON.stringify({
-        "symantic": refRU.current.editor.getValue()})
-      }
-      );
+        "symantic": refRU.current.editor.getValue()
+      })
+    }
+    );
 
-      let response = await request.json();
-      // console.log(response)
-      // console.log(JSON.parse(response))
-      // let result = JSON.parse(response)
-      if (response.error === 0){
-        window.open(frontUrl + '/' + response.info)
-        document.getElementById('errorMsg').innerText = ""
-      }
-      else {
-        document.getElementById('errorMsg').innerText = response.info
-      }
-  }
-  
-  const onClickINTERPRETER = async (e) => {
-    save(refLU.current.editor.getValue(),
-         refLD.current.editor.getValue(),
-         refRU.current.editor.getValue())
-    let request = await fetch(serverUrl + '/interpreter', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-      body: JSON.stringify({
-        "source": refLU.current.editor.getValue(),
-        "syntax": refLD.current.editor.getValue() })
-      }
-      );
-
-      let response = await request.json();
-      if (response.error === 0){
-        window.open(frontUrl + '/' + response.info)
-        document.getElementById('errorMsg').innerText = ""
-      }
-      else {
-        document.getElementById('errorMsg').innerText = response.info
-      }
+    let response = await request.json();
+    console.log(response)
+    // console.log(JSON.parse(response))
+    // let result = JSON.parse(response)
+    if (response.error === 0) {
+      console.log('Opening ' + FILES_URL + '/' + response.info)      
+      window.open(FILES_URL + '/' + response.info)
+      document.getElementById('errorMsg').innerText = ""
+    }
+    else {
+      document.getElementById('errorMsg').innerText = response.info
+    }
   }
 
   const onClickDiagram = async (e) => {
     save(refLU.current.editor.getValue(),
-         refLD.current.editor.getValue(),
-         refRU.current.editor.getValue())
-    let request = await fetch(serverUrl + '/diagram', {
+      refLD.current.editor.getValue(),
+      refRU.current.editor.getValue())
+    let request = await fetch(SERVER_URL + '/diagram', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       },
       body: JSON.stringify({
-        "symantic": refRU.current.editor.getValue()})
-      }
-      );
+        "symantic": refRU.current.editor.getValue()
+      })
+    }
+    );
 
-      let response = await request.json();
-      // console.log(response)
-      // console.log(JSON.parse(response))
-      // let result = JSON.parse(response)
-      if (response.error === 0) {
-        window.open(frontUrl + '/' + response.info)
-        document.getElementById('errorMsg').innerText = ""
-      }
-      else {
-        document.getElementById('errorMsg').innerText = response.info
-      }
+    let response = await request.json();
+    // console.log(response)
+    // console.log(JSON.parse(response))
+    // let result = JSON.parse(response)
+    if (response.error === 0) {
+      console.log('Opening ' + FILES_URL + '/' + response.info)
+      window.open(FILES_URL + '/' + response.info)
+      document.getElementById('errorMsg').innerText = ""
+    }
+    else {
+      document.getElementById('errorMsg').innerText = response.info
+    }
   }
 
 
@@ -267,10 +281,10 @@ STATE
           onChange={editorOnResize(refLU, refLD)}
         >
           <Pane>
-            <SourceCode fRef={refLU} value={localStorage.getItem("sourceCodeExample")?localStorage.getItem("sourceCodeExample"):sourceCodeExample} />
+            <SourceCode fRef={refLU} value={localStorage.getItem("sourceCodeExample") ? localStorage.getItem("sourceCodeExample") : sourceCodeExample} />
           </Pane>
           <Pane>
-            <SourceCode fRef={refLD} value={localStorage.getItem("syntaxExample")?localStorage.getItem("syntaxExample"):syntaxExample}/>
+            <SourceCode fRef={refLD} value={localStorage.getItem("syntaxExample") ? localStorage.getItem("syntaxExample") : syntaxExample} />
           </Pane>
         </SplitPane>
         <SplitPane
@@ -278,10 +292,10 @@ STATE
           onChange={editorOnResize(refRU)}
         >
           <Pane initialSize="85%">
-            <SourceCode fRef={refRU} value={localStorage.getItem("semanticsExample")?localStorage.getItem("semanticsExample"):semanticsExample}/>
+            <SourceCode fRef={refRU} value={localStorage.getItem("semanticsExample") ? localStorage.getItem("semanticsExample") : semanticsExample} />
           </Pane>
           <Pane>
-            <Result onClickAST={onClickAST} onClickINTERPRETER={onClickINTERPRETER} onClickCode={onClickCode} onClickDiagram={onClickDiagram} error={error}/>
+            <Result onClickAST={onClickAST} onClickInterpreter={onClickInterpreter} onClickCode={onClickCode} onClickDiagram={onClickDiagram} error={error} />
           </Pane>
         </SplitPane>
       </SplitPane>

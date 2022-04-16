@@ -32,7 +32,7 @@ def createFiles(grammarName):
 
 def makeTemplate(grammarName, firstNode):
     shutil.copyfile(
-        os.path.join('tree1', 'template'),
+        os.path.join('tree', 'template.py'),
         os.path.join(grammarName, 'interpreter.py'))
     with open(os.path.join(grammarName, 'interpreter.py'), 'r') as templateFile:
         s = templateFile.read()
@@ -325,15 +325,17 @@ def buildDiagram(symantic):
     try:
         graph = Source.from_file(os.path.join(symanticName, symanticName + '.dot'))
         graph.render(filename=symanticName, directory=symanticName, format='svg')
+        target_path = 'public/diagram/' + symanticName + '.svg'
+        os.makedirs(os.path.dirname(target_path), exist_ok=True)
         shutil.copyfile(
             os.path.join(symanticName, symanticName + '.svg'),
-            os.path.join('..', 'front', 'public', symanticName + '.svg'))
+            target_path)
     except Exception as m:
         print(m)
         print('error while creating png file')
         return 'error while creating png file', -1
 
-    return (symanticName + '.svg'), 0
+    return 'diagram/' + symanticName + '.svg', 0
 
 
 def buildCode(symantic):
@@ -384,12 +386,15 @@ def buildCode(symantic):
      #   print('error while creating python file')
       #  return 'error while creating python file', -1
 
+    code_name = symanticName + '.py'
     try:
+        dest_path = os.path.join('public/symanthic/', code_name)
+        os.makedirs(os.path.dirname(dest_path), exist_ok=True)
         shutil.copyfile(
-            os.path.join(symanticName, symanticName + '.py'),
-            os.path.join('..', 'front', 'public', symanticName + '.py'))
-    except Exception:
-        print('error while copyfile')
+            os.path.join(symanticName, code_name),
+            dest_path)
+    except Exception as m:
+        print('error while copyfile' + str(m))
         return 'error while copyfile', -1
 
-    return (symanticName + '.py'), 0
+    return 'symanthic/' + code_name, 0
