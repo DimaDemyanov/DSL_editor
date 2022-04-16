@@ -1,11 +1,25 @@
+import sys
+
 from flask import Flask, send_from_directory
 from flask import request
 from flask import jsonify
 from flask_cors import CORS
-from Tree.buildAST import buildAST, getInterpreter
+from tree.buildAST import buildAST, getInterpreter
 from symantic.symantic import buildDiagram
 from symantic.symantic import buildCode
 from healthcheck import HealthCheck, EnvironmentDump
+
+import logging
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="{asctime} {levelname:<8} {message}",
+    style='{',
+    handlers=[
+        logging.FileHandler("main.log"),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
 
 app = Flask(__name__)
 CORS(app)

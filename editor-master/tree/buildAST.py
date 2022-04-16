@@ -2,6 +2,7 @@ import os
 import re
 import shutil
 import subprocess
+import logging
 from sys import platform as _platform
 from datetime import datetime
 
@@ -70,29 +71,26 @@ def makeTemplate(grammarName, firstNode):
 
 
 def buildGrammar(source, syntax):
-    print('Getting grammar name and the first token')
+    logging.info('Getting grammar name and the first token')
 
     try:
         (grammarName, firstNode) = findNameAndStartToken(syntax)
     except Exception as m:
-        print(m)
-        print('file format error')
-        return 'file format error', -1, None
+        logging.error('File format error' + str(m))
+        return 'File format error', -1, None
 
-    print('Saving source and syntax')
+    logging.info('Saving source and syntax')
     try:
         createFiles(source, syntax, grammarName)
     except Exception as m:
-        print(m)
-        print('file system error')
-        return 'file system error', -1, None
+        logging.error('File system error ' + str(m))
+        return 'File system error', -1, None
 
-    print('Processing syntax with ANTLR')
+    logging.info('Processing syntax with ANTLR')
     try:
         subprocess.call([ANTLR_LAUNCH, '-Dlanguage=Python3', '-o', grammarName, grammarName + '/' + grammarName + '.g4'], shell=IS_WINDOWS)
     except Exception as m:
-        print(m)
-        print('antlr error')
+        logging.error('antlr error: ' + str(m))
         return 'antlr error', -1, None
 
     return grammarName, 0, firstNode
@@ -106,9 +104,9 @@ def buildAST(source, syntax):
         makeTemplate(grammarName, firstNode)
         subprocess.check_output([PYTHON_LAUNCH, 'interpreter.py', 'program'], stderr=subprocess.STDOUT,
                                     cwd=grammarName)
-        print("Subprocess check_output finished ")
+        logging.info("Subprocess check_output finished ")
     except Exception as m:
-        print(m)
+        logging.error(m)
         regex = r"(^Exception: line .*$)"
         s = re.findall(regex, m.output.decode('utf-8'), re.MULTILINE | re.IGNORECASE)
         return (s[0], -1) if len(s) > 0 else ("error while parse syntax", 1)
@@ -124,9 +122,8 @@ def buildAST(source, syntax):
             os.path.join(grammarName, grammarName + '.svg'),
             dest_path)
     except Exception as m:
-        print(m)
-        print('error while creating png file')
-        return 'error while creating png file', -1
+        logging.error('Error while creating png file' + str(m))
+        return 'Error while creating png file', -1
 
     return svg_picture_name, 0
 
@@ -140,9 +137,8 @@ def getInterpreter(source, syntax):
     try:
         makeTemplate(grammarName, firstNode)
     except Exception as m:
-        print("Cannot make template.py")
-        print(m)
-        return "Cannot make template.py", -1
+        logging.error('Cannot make template.py' + str(m))
+        return 'Cannot make template.py', -1
     try:
         # the folder to be archived is "grammarName"
         archive_ext = 'zip'
@@ -160,8 +156,7 @@ def getInterpreter(source, syntax):
         shutil.copyfile(grammarName + '.' + archive_ext,
                         target_path)
     except Exception as m:
-        print('error while creating archive')
-        print(m)
+        logging.error('error while creating archive' + str(m))
         return 'error while creating archive', -1
 
     return interpreter_archive_name, 0
