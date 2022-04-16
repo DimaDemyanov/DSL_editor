@@ -8,4 +8,4 @@ Jinja2==2.11.1
 MarkupSafe==1.1.1
 six==1.14.0
 Werkzeug==1.0.1
-py-healthcheck==1.14.0
+py-healthcheck==1.10.0
