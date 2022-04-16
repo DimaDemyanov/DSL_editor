@@ -57,7 +57,7 @@ def createFiles(source, syntax, grammarName):
 
 def makeTemplate(grammarName, firstNode):
     shutil.copyfile(
-        os.path.join('Tree', 'template.py'),
+        os.path.join('tree', 'template.py'),
         os.path.join(grammarName, 'interpreter.py'))
     s = open(os.path.join(grammarName, 'interpreter.py')).read()
     s = s.replace('(grammarName)', grammarName)
