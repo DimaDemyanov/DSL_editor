@@ -89,7 +89,7 @@ def buildGrammar(source, syntax):
 
     print('Processing syntax with ANTLR')
     try:
-        subprocess.call([ANTLR_LAUNCH, '-Dlanguage=Python3', grammarName + '.g4'], cwd=grammarName, shell=IS_WINDOWS)
+        subprocess.call([ANTLR_LAUNCH, '-Dlanguage=Python3', '-o', grammarName, grammarName + '/' + grammarName + '.g4'], shell=IS_WINDOWS)
     except Exception as m:
         print(m)
         print('antlr error')
