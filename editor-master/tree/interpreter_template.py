@@ -1,9 +1,8 @@
-import sys
 from antlr4 import *
 from antlr4.Utils import escapeWhitespace
 from antlr4.tree.Trees import Trees
-from ASTgrammarLexer import ASTgrammarLexer
-from ASTgrammarParser import ASTgrammarParser
+from (grammarName)Lexer import (grammarName)Lexer
+from (grammarName)Parser import (grammarName)Parser
 from antlr4.error.ErrorListener import *
 
 class ChatErrorListener(ErrorListener):
@@ -28,7 +27,7 @@ def process(t, ruleNames):
     s = escapeWhitespace(Trees.getNodeText(t, ruleNames), False)
     sb += (s + ' ')
     for i in range(t.getChildCount()):
-    	sb += process(t.getChild(i), ruleNames)
+        sb += process(t.getChild(i), ruleNames)
     level -= 1
     # sb += lead(level)
     return sb
@@ -36,9 +35,9 @@ def process(t, ruleNames):
 def lead(level):
     sb = ""
     if (level > 0):
-    	sb += "\n"
-    	for cnt in range(level):
-    		sb += " "
+        sb += "\n"
+        for cnt in range(level):
+            sb += " "
     return sb
 
 def node2diagram(t, left, names, f, counter, gen):
@@ -57,7 +56,7 @@ def node2diagram(t, left, names, f, counter, gen):
 
 
 def tree2diagram(t, names):
-    f = open("ASTgrammar.dot", "w")
+    f = open("(grammarName).dot", "w")
     print("digraph {", sep='', file=f)
 
     gen = (x for x in range(100000))
@@ -69,12 +68,12 @@ def tree2diagram(t, names):
 
 def main(argv):
     input = FileStream(argv[1], encoding='utf-8')
-    lexer = ASTgrammarLexer(input)
+    lexer = (grammarName)Lexer(input)
     stream = CommonTokenStream(lexer)
-    parser = ASTgrammarParser(stream)
+    parser = (grammarName)Parser(stream)
     errorListener = ChatErrorListener()
     parser.addErrorListener(errorListener)
-    tree = parser.t()
+    tree = parser.(firstNode)()
     # ast = syntaxVisitor().visitRulelist(tree)
     # print(tree.toStringTree(recog=parser))
     # print(parser.ruleNames)

@@ -57,7 +57,7 @@ def createFiles(source, syntax, grammarName):
 
 def makeTemplate(grammarName, firstNode):
     shutil.copyfile(
-        os.path.join('tree', 'template.py'),
+        os.path.join('tree', 'interpreter_template.py'),
         os.path.join(grammarName, 'interpreter.py'))
     s = open(os.path.join(grammarName, 'interpreter.py')).read()
     s = s.replace('(grammarName)', grammarName)
@@ -140,9 +140,9 @@ def getInterpreter(source, syntax):
     try:
         makeTemplate(grammarName, firstNode)
     except Exception as m:
-        print("Cannot make template.py")
+        print("Cannot make interpreter_template.py")
         print(m)
-        return "Cannot make template.py", -1
+        return "Cannot make interpreter_template.py", -1
     try:
         # the folder to be archived is "grammarName"
         archive_ext = 'zip'

@@ -32,7 +32,7 @@ def createFiles(grammarName):
 
 def makeTemplate(grammarName, firstNode):
     shutil.copyfile(
-        os.path.join('tree', 'template.py'),
+        os.path.join('tree', 'interpreter_template.py'),
         os.path.join(grammarName, 'interpreter.py'))
     with open(os.path.join(grammarName, 'interpreter.py'), 'r') as templateFile:
         s = templateFile.read()
