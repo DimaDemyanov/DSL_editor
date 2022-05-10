@@ -4,7 +4,7 @@ from flask import Flask, send_from_directory
 from flask import request
 from flask import jsonify
 from flask_cors import CORS
-from tree.buildAST import buildAST, getInterpreter
+from tree.buildAST import buildGrammar, buildAST, getInterpreter
 from symantic.symantic import buildDiagram
 from symantic.symantic import buildCode
 from healthcheck import HealthCheck, EnvironmentDump
@@ -32,8 +32,17 @@ envdump = EnvironmentDump()
 app.add_url_rule("/healthcheck", "healthcheck", view_func=lambda: health.run())
 app.add_url_rule("/environment", "environment", view_func=lambda: envdump.run())
 
+@app.route("/check-grammar", methods=['POST'])
+def check_grammar():
+    source = request.json['source']
+    syntax = request.json['syntax']
+    if source == '':
+        return jsonify({'info': 'Source not found', 'error': -1})
+    info, x, _ = buildGrammar(source, syntax)
+    return jsonify({'info': info if x != -1 else 'Grammar is fine', 'error': 0 if x != -1 else info})
+
 @app.route("/ast", methods=['POST'])
-def hello():
+def ast():
     source = request.json['source']
     syntax = request.json['syntax']
     if source == '':

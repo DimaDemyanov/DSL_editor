@@ -2,12 +2,16 @@ import React, { useRef, useState } from 'react';
 import SplitPane from 'react-split-pane';
 import Pane from 'react-split-pane/lib/Pane';
 import { SourceCode } from './components/SourceCode'
-import { Result } from './components/Result'
-import logo from './logo.svg';
+import ProgramSourceCode from './components/SourceCode/ProgramSourceCode';
+import GrammarSourceCode from './components/SourceCode/GrammarSourceCode';
+import Result from './components/Result/Result'
 import './App.css';
 
 import "ace-builds/src-noconflict/mode-java";
 import "ace-builds/src-noconflict/theme-github";
+
+import { Provider } from "react-redux";
+import store from './store';
 
 function onChange(newValue) {
   console.log("change", newValue);
@@ -132,21 +136,59 @@ STATE
 
   const SERVER_URL = process.env.REACT_APP_SERVER_URL
   const FRONT_URL = process.env.REACT_APP_FRONT_URL
-  
+
   const AST_URL = SERVER_URL + '/ast'
   const INTERPRETER_URL = SERVER_URL + '/interpreter'
-  const FILES_URL = SERVER_URL + '/files' 
-  const CODE_URL = SERVER_URL + '/code' 
+  const FILES_URL = SERVER_URL + '/files'
+  const CODE_URL = SERVER_URL + '/code'
+  const DIAGRAM_URL = SERVER_URL + '/diagram'
+  const CHECK_GRAMMAR_URL = SERVER_URL + '/check-grammar'
 
   const error = {
     value: ''
   }
 
+  const onClickSetGrammar = async (e) => {
+    save(refLU.current.editor.getValue(),
+      refLD.current.editor.getValue(),
+      refRU.current.editor.getValue())
+
+    let request = await fetch(CHECK_GRAMMAR_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({
+        "source": refLU.current.editor.getValue(),
+        "syntax": refLD.current.editor.getValue()
+      })
+    }
+    );
+
+    let response = await request.json();
+
+    console.log('Respone for setGrammar received: ' + JSON.stringify(response));
+
+    if (response.error === 0) {
+      // Show error message
+      store.dispatch({type: "WRITING_PROGRAM"})
+      document.getElementById('errorMsg').innerText = ''
+    } else {
+      document.getElementById('errorMsg').innerText = response.error
+    }
+    
+  }
+
+  const onClickChangeGrammar = async (e) => {
+    store.dispatch({type: "WRITING_GRAMMAR"})
+  }
+
   const onClickAST = async (e) => {
     save(refLU.current.editor.getValue(),
-    refLD.current.editor.getValue(),
-    refRU.current.editor.getValue())
-    
+      refLD.current.editor.getValue(),
+      refRU.current.editor.getValue())
+
     console.log('Sending request to build AST ' + AST_URL)
 
     let request = await fetch(AST_URL, {
@@ -162,9 +204,6 @@ STATE
     });
 
     let response = await request.json();
-    console.log(response)
-    // console.log(JSON.parse(response))
-    // let result = JSON.parse(response)
     if (response.error === 0) {
       console.log('Opening ' + FILES_URL + '/' + response.info)
       window.open(FILES_URL + '/' + response.info)
@@ -200,8 +239,7 @@ STATE
       console.log('Opening ' + FILES_URL + '/' + response.info)
       window.open(FILES_URL + '/' + response.info)
       document.getElementById('errorMsg').innerText = ""
-    }
-    else {
+    } else {
       document.getElementById('errorMsg').innerText = response.info
     }
   }
@@ -226,11 +264,8 @@ STATE
     );
 
     let response = await request.json();
-    console.log(response)
-    // console.log(JSON.parse(response))
-    // let result = JSON.parse(response)
     if (response.error === 0) {
-      console.log('Opening ' + FILES_URL + '/' + response.info)      
+      console.log('Opening ' + FILES_URL + '/' + response.info)
       window.open(FILES_URL + '/' + response.info)
       document.getElementById('errorMsg').innerText = ""
     }
@@ -243,7 +278,7 @@ STATE
     save(refLU.current.editor.getValue(),
       refLD.current.editor.getValue(),
       refRU.current.editor.getValue())
-    let request = await fetch(SERVER_URL + '/diagram', {
+    let request = await fetch(DIAGRAM_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -256,9 +291,6 @@ STATE
     );
 
     let response = await request.json();
-    // console.log(response)
-    // console.log(JSON.parse(response))
-    // let result = JSON.parse(response)
     if (response.error === 0) {
       console.log('Opening ' + FILES_URL + '/' + response.info)
       window.open(FILES_URL + '/' + response.info)
@@ -269,37 +301,44 @@ STATE
     }
   }
 
+  
 
   return (
-    <div className="App">
-      <SplitPane
-        split="vertical"
-        onChange={editorOnResize(refLU, refLD, refRU)}
-      >
+    <Provider store={store}>
+      <div className="App">
+      <Result onClickSetGrammar={onClickSetGrammar}
+              onClickChangeGrammar={onClickChangeGrammar}
+              onClickAST={onClickAST} 
+              onClickInterpreter={onClickInterpreter} 
+              onClickCode={onClickCode} 
+              onClickDiagram={onClickDiagram} 
+              error={error} />
         <SplitPane
-          split="horizontal"
-          onChange={editorOnResize(refLU, refLD)}
+          split="vertical"
+          onChange={editorOnResize(refLU, refLD, refRU)}
         >
-          <Pane>
-            <SourceCode fRef={refLU} value={localStorage.getItem("sourceCodeExample") ? localStorage.getItem("sourceCodeExample") : sourceCodeExample} />
-          </Pane>
-          <Pane>
-            <SourceCode fRef={refLD} value={localStorage.getItem("syntaxExample") ? localStorage.getItem("syntaxExample") : syntaxExample} />
-          </Pane>
+          <SplitPane
+            split="horizontal"
+            onChange={editorOnResize(refLU, refLD)}
+          >
+            <Pane>
+              <ProgramSourceCode fRef={refLU} value={localStorage.getItem("sourceCodeExample") ? localStorage.getItem("sourceCodeExample") : sourceCodeExample} />
+            </Pane>
+            <Pane>
+              <GrammarSourceCode fRef={refLD} value={localStorage.getItem("syntaxExample") ? localStorage.getItem("syntaxExample") : syntaxExample} />
+            </Pane>
+          </SplitPane>
+          <SplitPane
+            split="horizontal"
+            onChange={editorOnResize(refRU)}
+          >
+            <Pane>
+              <SourceCode fRef={refRU} value={localStorage.getItem("semanticsExample") ? localStorage.getItem("semanticsExample") : semanticsExample} />
+            </Pane>
+          </SplitPane>
         </SplitPane>
-        <SplitPane
-          split="horizontal"
-          onChange={editorOnResize(refRU)}
-        >
-          <Pane initialSize="85%">
-            <SourceCode fRef={refRU} value={localStorage.getItem("semanticsExample") ? localStorage.getItem("semanticsExample") : semanticsExample} />
-          </Pane>
-          <Pane>
-            <Result onClickAST={onClickAST} onClickInterpreter={onClickInterpreter} onClickCode={onClickCode} onClickDiagram={onClickDiagram} error={error} />
-          </Pane>
-        </SplitPane>
-      </SplitPane>
-    </div>
+      </div>
+    </Provider>
   );
 }
 
