@@ -98,9 +98,8 @@ def buildGrammar(source, syntax):
 
         subprocess.check_output(antlr_args, stderr=subprocess.STDOUT, shell=IS_WINDOWS)
     except Exception as m:
-        print(m)
-        print('antlr error')
-        return 'antlr error', -1, None
+        print('ANTLR error: ' + str(m))
+        return 'ANTLR error: ' + re.sub('.*g4:', '', str(m.output)).replace('\\r\\n', '\n'), -1, None
 
     return grammarName, 0, firstNode
 

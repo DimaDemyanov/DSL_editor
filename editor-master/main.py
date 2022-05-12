@@ -39,7 +39,7 @@ def check_grammar():
     if source == '':
         return jsonify({'info': 'Source not found', 'error': -1})
     info, x, _ = buildGrammar(source, syntax)
-    return jsonify({'info': info if x != -1 else 'Grammar is fine', 'error': 0 if x != -1 else info})
+    return jsonify({'info': info if x != -1 else 0, 'error': 0 if x != -1 else info})
 
 @app.route("/ast", methods=['POST'])
 def ast():
