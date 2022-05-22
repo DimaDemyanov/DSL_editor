@@ -41,30 +41,32 @@ def lead(level):
     return sb
 
 def node2diagram(t, left, names, f, counter, gen):
+    result = ''
     n = t.getChildCount()
-    print(counter, '[label = "', left.replace('"','\\"'), '"]', sep='', file=f)
+    result = result + str(counter) + '[label = "' + left.replace('"','\\"') + '"]' + '\n'
     for i in range(0, n):
         right = t.getChild(i)
         nxt = next(gen)
         if right.getChildCount() == 0:
-            print(nxt, '[label = "', right.getText().replace('"','\\"'), '"]', sep='', file=f)
-            print(counter, '->', nxt, sep='', file=f)
+            result = result + str(nxt) + '[label = "' + right.getText().replace('"','\\"') + '"]'  + '\n'
+            result = result + str(counter) + '->' + str(nxt)  + '\n'
         else:
-            print(nxt, '[label = "', names[right.getRuleIndex()], '"]', sep='', file=f)
-            print(counter, '->', nxt, sep='', file=f)
-            node2diagram(t.getChild(i), names[right.getRuleIndex()].replace('"','\\"'), names, f, nxt, gen)
-
+            result = result + str(nxt) + '[label = "' + names[right.getRuleIndex()] + '"]'  + '\n'
+            result = result + str(counter) + '->' + str(nxt)  + '\n'
+            result = result + node2diagram(t.getChild(i), names[right.getRuleIndex()].replace('"','\\"'), names, f, nxt, gen)
+    return result
 
 def tree2diagram(t, names):
-    f = open("(grammarName).dot", "w")
-    print("digraph {", sep='', file=f)
+    with open("(grammarName).dot", "wb") as f:
+        result = ''
+        result = result + "digraph {\n"
 
-    gen = (x for x in range(100000))
+        gen = (x for x in range(100000))
 
-    node2diagram(t, names[t.getRuleIndex()], names, f, next(gen), gen)
+        result = result + node2diagram(t, names[t.getRuleIndex()], names, f, next(gen), gen)
 
-    print("}", sep='', file=f)
-    f.close()
+        result = result + '}\n'
+        f.write(result.encode('UTF-8'))
 
 def main(argv):
     input = FileStream(argv[1], encoding='utf-8')

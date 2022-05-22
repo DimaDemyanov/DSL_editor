@@ -49,10 +49,10 @@ def findFirstNode(syntax):
 def createFiles(source, syntax, grammarName):
     if not os.path.exists(grammarName):
         os.mkdir(grammarName)
-    with open(os.path.join(grammarName, grammarName + '.g4'), 'w') as temp_file:
-        temp_file.write(syntax)
-    with open(os.path.join(grammarName, 'program'), 'w') as temp_file:
-        temp_file.write(source)
+    with open(os.path.join(grammarName, grammarName + '.g4'), 'wb') as temp_file:
+        temp_file.write(syntax.encode('UTF-8'))
+    with open(os.path.join(grammarName, 'program'), 'wb') as temp_file:
+        temp_file.write(source.encode('UTF-8'))
 
 
 def makeTemplate(grammarName, firstNode):
@@ -74,6 +74,7 @@ def buildGrammar(source, syntax):
 
     try:
         (grammarName, firstNode) = findNameAndStartToken(syntax)
+        print('Extracted grammarName: ' + grammarName + ', firstNode: ' + firstNode)
     except Exception as m:
         print(m)
         print('file format error')
