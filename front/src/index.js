@@ -3,6 +3,11 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
+import { syntaxExample, semanticsExample, sourceCodeExample } from './example'
+
+localStorage.setItem("sourceCode", sourceCodeExample)
+localStorage.setItem("syntax", syntaxExample)
+localStorage.setItem("semantics", semanticsExample)
 
 ReactDOM.render(
   <React.StrictMode>

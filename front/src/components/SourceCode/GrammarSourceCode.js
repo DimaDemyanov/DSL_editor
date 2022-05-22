@@ -1,5 +1,13 @@
 import { SourceCode } from "./SourceCode";
 import { connect } from "react-redux";
-import MapStateToProps from "./MapStateToProps";
 
-export default connect((state) => (MapStateToProps(!state))) (SourceCode)
+function MapStateToProps (state) {
+    return ({
+        style: !state ? {background: '#FFFFFF'} : {background: '#A9A9A9'},
+        readOnly: state,
+        highlightActiveLine: !state,
+        value: localStorage.getItem("syntax")
+    })
+}
+
+export default connect(MapStateToProps) (SourceCode)
