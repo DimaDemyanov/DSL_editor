@@ -1,6 +1,7 @@
 # That file was generated automatically with DSL editor
 # The moment of generation: 27/05/2022 16:51:12
-
+import os
+from enum import Enum
 
 from antlr4 import *
 from antlr4.Utils import escapeWhitespace
@@ -8,6 +9,13 @@ from antlr4.tree.Trees import Trees
 from ontologyLexer import ontologyLexer
 from ontologyParser import ontologyParser
 from antlr4.error.ErrorListener import *
+
+from interpreter.ClassContainer import *
+from interpreter.ActContainer import *
+from interpreter.AggrContainer import *
+from interpreter.EnumContainer import *
+from Package_overriden import Package
+
 
 class ChatErrorListener(ErrorListener):
     def syntaxError(self, recognizer, offendingSymbol, line, column, msg, e):
@@ -77,84 +85,116 @@ class FileContainer:
         self.packages = packages
 
 
-def file_context_to_file_container(file_, file):
+def file_context_to_file_container(file_):
     n = file_.getChildCount()
     packages = []
     for i in range(n):
         child = file_.getChild(i)
         if isinstance(child, ontologyParser.PackageContext):
-            packages.append(package_context_to_package_container(child, file))
+            packages.append(package_context_to_package_container(child))
     file_container = FileContainer(packages)
     return file_container
 
 class PackageContainer:
-    def __init__(self, types, classes, enum):
+    def __init__(self, name, types, classes, enums, rels):
+        self.name = name
         self.types = types
         self.classes = classes
-        self.enum = enum
+        self.enums = enums
+        self.rels = rels
 
-def package_context_to_package_container(package, file):
+def package_context_to_package_container(package):
     n = package.getChildCount()
+    name = ''
     types = None
-    enum = None
+    enums = []
     classes = []
+    rels = []
     for i in range(n):
         child = package.getChild(i)
+        if isinstance(child, ontologyParser.Name_Context):
+            name = name_to_str(child)
+
         if isinstance(child, ontologyParser.TypesContext):
             if types is None:
-                types = types_context_to_types_container(child, file)
+                types = types_context_to_types_container(child)
             else:
                 print('Error: There are 2 types in one package!')
 
         if isinstance(child, ontologyParser.Enum_Context):
-            if enum is None:
-                enum = enum_context_to_enum_container(child, file)
-            else:
-                print('Error: There are 2 enums in one package!')
+            enums.append(enum_context_to_enum_container(child))
 
         if isinstance(child, ontologyParser.Class_Context):
-            classes.append(class_context_to_class_container(child, file))
-    package_container = PackageContainer(types, classes, enum)
+            classes.append(class_context_to_class_container(child))
+
+        if isinstance(child, ontologyParser.RelContext):
+            rels = rel_context_to_rel_container(child)
+    package_container = PackageContainer(name, types, classes, enums, rels)
     return package_container
 
-class EnumContainer:
-    def __init__(self, name, constants):
-        self.name = name
-        self.constants = constants
 
-def enum_context_to_enum_container(enum, file):
-    pass
+class RelContainer:
+    def __init__(self, acts, assocs, gens, aggrs, comps, deps, impls):
+        self.acts = acts
+        self.assocs = assocs
+        self.gens = gens
+        self.aggrs = aggrs
+        self.comps = comps
+        self.deps = deps
+        self.impls = impls
 
-class ClassContainer:
-    def __init__(self, name, constants):
-        self.name = name
-        self.constants = constants
+def rel_context_to_rel_container(rel):
+    n = rel.getChildCount()
+    # acts = []
+    # assocs = []
+    # gens = []
+    # aggrs = []
+    # comps = []
+    # deps = []
+    # impls = []
+    rels = []
 
-def class_context_to_class_container(class_, file):
-    pass
+    for i in range(n):
+        child = rel.getChild(i)
+        if isinstance(child, ontologyParser.ActContext):
+            rels.append(act_context_to_act_container(child))
+
+        # if isinstance(child, ontologyParser.AssocContext):
+        #     assocs.append(act_context_to_act_container(child))
+
+        # if isinstance(child, ontologyParser.GenContext):
+        #     gens.append(act_context_to_act_container(child))
+
+        if isinstance(child, ontologyParser.AggrContext):
+            rels.append(aggr_context_to_aggr_container(child))
+
+        # if isinstance(child, ontologyParser.CompContext):
+        #     comps.append(aggr_context_to_aggr_container(child))
+
+        # if isinstance(child, ontologyParser.DepContext):
+        #     deps.append(aggr_context_to_aggr_container(child))
+
+        # if isinstance(child, ontologyParser.ImplContext):
+        #     impls.append(aggr_context_to_aggr_container(child))
+
+    return rels
 
 class TypesContainer:
     def __init__(self, typeNames):
         self.typeNames = typeNames
 
-def types_context_to_types_container(types, file):
+def types_context_to_types_container(types):
     n = types.getChildCount()
     typeNames = []
     for i in range(n):
         child = types.getChild(i)
         if isinstance(child, ontologyParser.Type_nameContext):
-            typeNames.append(type_name_to_str(child))
+            typeNames.append(name_to_str(child))
 
     tree_container = TypesContainer(typeNames)
     return tree_container
 
-def type_name_to_str(type_name):
-    result = ''
-    n = type_name.getChildCount()
-    for i in range(n):
-        child = type_name.getChild(i)
-        result += child.symbol.text
-    return result
+
 
 def main(argv):
     input = FileStream(argv[1], encoding='utf-8')
@@ -171,7 +211,15 @@ def main(argv):
     # print(tree.toStringTree(recog=parser))
     # tree2diagram(tree, parser.ruleNames)
     # print(parser.ruleNames[tree.getChild(0).getRuleIndex()], " ", parser.ruleNames)
-    file_context_to_file_container(tree, 'out.dima')
+    file_container = file_context_to_file_container(tree)
+
+    dir = os.path.join(os.path.dirname(__file__), 'output')
+    if not os.path.exists(dir):
+        os.mkdir(dir)
+    for package in file_container.packages:
+        with open(os.path.join(dir, package.name + '.json'), 'w', encoding="utf-8") as file:
+            Package(file_container.packages[0], file).run()
+
     print('end')
 
 
