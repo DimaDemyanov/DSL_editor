@@ -244,7 +244,8 @@ def make_python(graphs, symanticName):
                 action = ""
                 if isinstance(v["action"], str):
                     action = v["action"]
-                    action = action.replace(':=',' = ')
+                    if not action.replace(':=',' = self.__') == action:
+                        action = 'self.' + action.replace(':=',' = self.__')
                 elif v["action"]["name"] in [d['name'] for d in inner]:
                     print(v["action"]["name"])
                     action = 'self.__' + v["action"]["name"] + '(' + ', '.join(v["action"]["value"]) + ')'
@@ -337,6 +338,12 @@ def buildDiagram(symantic):
 
     return 'diagram/' + symanticName + '.svg', 0
 
+def removeComments(symantic):
+    result = ''
+    for line in symantic.splitlines():
+        result = result + (line + '\n' if not line.lstrip().startswith('//') else '')
+
+    return result
 
 def buildCode(symantic):
 
@@ -346,6 +353,8 @@ def buildCode(symantic):
         print(m)
         print('file format error')
         return 'file format error', -1
+
+    # symantic = removeComments(symantic)
 
     try:
         input = InputStream(symantic)
