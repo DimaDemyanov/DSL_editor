@@ -4,6 +4,8 @@ import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 import { syntaxExample, semanticsExample, sourceCodeExample } from './example'
+import './assets/scss/auth.scss'
+import './App.css'
 
 localStorage.setItem("sourceCode", sourceCodeExample)
 localStorage.setItem("syntax", syntaxExample)

@@ -9,7 +9,7 @@ function ResultTemplate(props) {
 
   return (
     <div className="container">
-      <div className="row">
+      <div className="editor-buttons-row">
         <div className="buttons-block">
           <div className="button set-grammar-button">
             <Button variant="contained" color="primary" disabled={!props.changingGrammarActive} onClick={props.onClickSetGrammar}>Set grammar</Button>
