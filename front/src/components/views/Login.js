@@ -1,24 +1,30 @@
 import React from 'react';
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useHistory} from "react-router-dom";
 import Form from '../../utilities/Forms'
+
+const SERVER_URL = process.env.REACT_APP_SERVER_URL
+const LOGIN_URL = SERVER_URL + '/login'
+
 
 const Login = () => {
 
-    const [email, setEmail] = useState('');
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [remember, setRemember] = useState(false);
     const [validate, setValidate] = useState({});
     const [showPassword, setShowPassword] = useState(false);
 
+    const history = useHistory();
+
     const validateLogin = () => {
         let isValid = true;
 
         let validator = Form.validator({
-            email: {
-                value: email,
+            username: {
+                value: username,
                 isRequired: true,
-                isEmail: true
+                minLength: 6
             },
             password: {
                 value: password,
@@ -37,16 +43,37 @@ const Login = () => {
         return isValid;
     }
 
-    const authenticate = (e) => {
+    const authenticate = async (e) => {
         e.preventDefault();
 
         const validate = validateLogin();
+        
 
         if (validate) {
-            setValidate({});
-            setEmail('');
-            setPassword('');
-            alert('Successfully Login');
+            let request = await fetch(LOGIN_URL, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Accept': 'application/json   '
+                },
+                body: JSON.stringify({
+                  "username": username
+                })
+              });
+            
+            let response = await request.json()
+
+            console.log(response)
+            if (request.status != 200) {
+                alert('Unable to login');
+            } else {
+                console.log('DIMA ' + response)
+                document.cookie = 'username=' + response.username
+                setValidate({});
+                setUsername('');
+                setPassword('');
+                history.push('/editor')
+            }
         }
     }
 
@@ -71,18 +98,18 @@ const Login = () => {
                         <p>Login to your account</p>
                         <div className="auth-form-container text-start">
                             <form className="auth-form" method="POST" onSubmit={authenticate} autoComplete={'off'}>
-                                <div className="email mb-3">
-                                    <input type="email"
-                                        className={`form-control ${validate.validate && validate.validate.email ? 'is-invalid ' : ''}`}
-                                        id="email"
-                                        name="email"
-                                        value={email}
-                                        placeholder="Email"
-                                        onChange={(e) => setEmail(e.target.value)}
+                                <div className="username mb-3">
+                                    <input type="username"
+                                        className={`form-control ${validate.validate && validate.validate.username ? 'is-invalid ' : ''}`}
+                                        id="username"
+                                        name="username"
+                                        value={username}
+                                        placeholder="username"
+                                        onChange={(e) => setUsername(e.target.value)}
                                     />
 
-                                    <div className={`invalid-feedback text-start ${(validate.validate && validate.validate.email) ? 'd-block' : 'd-none'}`} >
-                                        {(validate.validate && validate.validate.email) ? validate.validate.email[0] : ''}
+                                    <div className={`invalid-feedback text-start ${(validate.validate && validate.validate.username) ? 'd-block' : 'd-none'}`} >
+                                        {(validate.validate && validate.validate.username) ? validate.validate.username[0] : ''}
                                     </div>
                                 </div>
 
@@ -112,11 +139,6 @@ const Login = () => {
                                                 <label className="form-check-label" htmlFor="remember">
                                                     Remember me
                                                 </label>
-                                            </div>
-                                        </div>
-                                        <div className="col-6">
-                                            <div className="forgot-password text-end">
-                                                <Link to="/forgot-password">Forgot password?</Link>
                                             </div>
                                         </div>
                                     </div>

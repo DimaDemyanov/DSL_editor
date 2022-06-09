@@ -1,7 +1,6 @@
 import sys
 
-from flask import Flask, send_from_directory
-from flask import request
+from flask import Flask, send_from_directory, request, make_response
 from flask import jsonify
 from flask_cors import CORS
 from tree.buildAST import buildGrammar, buildAST, getInterpreter, buildSyntaxDiagram
@@ -31,6 +30,42 @@ health = HealthCheck()
 envdump = EnvironmentDump()
 app.add_url_rule("/healthcheck", "healthcheck", view_func=lambda: health.run())
 app.add_url_rule("/environment", "environment", view_func=lambda: envdump.run())
+
+@app.route('/login', methods=['POST'])
+# @cross_origin()
+def login_post():
+    username = request.json['username']
+    # password = request.json['password']
+    # remember = True if request.json['remember'] else False
+
+    # user = User.query.filter_by(email=email).first()
+    #
+    # # check if the user actually exists
+    # # take the user-supplied password, hash it, and compare it to the hashed password in the database
+    # if not user or not check_password_hash(user.password, password):
+    #     flash('Please check your login details and try again.')
+    #     return redirect(url_for('auth.login')) # if the user doesn't exist or password is wrong, reload the page
+    #
+    # # if the above check passes, then we know the user has the right credentials
+    # return redirect(url_for('main.profile'))
+
+    resp = make_response(jsonify(request.json))
+    resp.set_cookie('username', username, secure=True)
+    # resp.headers["Access-Control-Allow-Origin"] = "*"
+    # resp.headers["Access-Control-Allow-Credentials"] = "true"
+    return resp
+
+@app.after_request
+def after_request(response):
+    # response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Credentials"] = "true"
+    return response
+
+@app.before_request
+def before_request():
+    print('Cookies: ' + str(request.cookies))
+    print('Username' + str(request.headers.get('Username')))
+    # print(str(request.headers))
 
 @app.route("/check-grammar", methods=['POST'])
 def check_grammar():

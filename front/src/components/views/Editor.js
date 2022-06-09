@@ -48,23 +48,31 @@ function Editor() {
     value: ''
   }
 
+  const fetchPostJson = async (url, json) => fetch(url, {
+        method: 'POST',
+        headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'username': getCookieByName('username')
+        },
+        body: json
+    }
+  );
+
+  function getCookieByName(name) {
+    var match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+    if (match) return match[2];
+  }
+
   const onClickSetGrammar = async (e) => {
     save(refLU.current.editor.getValue(),
       refLD.current.editor.getValue(),
       refRU.current.editor.getValue())
 
-    let request = await fetch(CHECK_GRAMMAR_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-      body: JSON.stringify({
+    let request = await fetchPostJson(CHECK_GRAMMAR_URL,  JSON.stringify({
         "source": refLU.current.editor.getValue(),
         "syntax": refLD.current.editor.getValue()
-      })
-    }
-    );
+      }));
 
     let response = await request.json();
 
