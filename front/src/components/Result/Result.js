@@ -17,6 +17,9 @@ function ResultTemplate(props) {
           <div className="button change-grammar-button">
             <Button variant="contained" color="primary" disabled={props.changingGrammarActive} onClick={props.onClickChangeGrammar}>Change grammar</Button>
           </div>
+          <div className="button">
+            <Button variant="contained" color="primary" disabled={props.changingGrammarActive} onClick={props.onClickSyntaxDiagram}>Syntax diagram</Button>
+          </div>
         </div>
 
         <div className="buttons-block">

@@ -4,7 +4,7 @@ from flask import Flask, send_from_directory
 from flask import request
 from flask import jsonify
 from flask_cors import CORS
-from tree.buildAST import buildGrammar, buildAST, getInterpreter
+from tree.buildAST import buildGrammar, buildAST, getInterpreter, buildSyntaxDiagram
 from symantic.symantic import buildDiagram
 from symantic.symantic import buildCode
 from healthcheck import HealthCheck, EnvironmentDump
@@ -41,6 +41,14 @@ def check_grammar():
     info, x, _ = buildGrammar(source, syntax)
     return jsonify({'info': info if x != -1 else 0, 'error': 0 if x != -1 else info})
 
+@app.route("/syntax-diagram", methods=['POST'])
+def syntax_diagram():
+    syntax = request.json['syntax']
+    if syntax == '':
+        return jsonify({'info': 'Syntax not found', 'error': -1})
+    (info, x) = buildSyntaxDiagram(syntax)
+    return jsonify({'info': info, 'error': x})
+
 @app.route("/ast", methods=['POST'])
 def ast():
     source = request.json['source']
@@ -70,6 +78,10 @@ def code():
     symantic = request.json['symantic']
     if symantic == '':
         return jsonify({'info': 'Symantic not found', 'error': -1})
+
+    with open('symantic.txt', 'w', encoding='utf-8') as file:
+        file.write(symantic)
+
     (info, x) = buildCode(symantic)
     return jsonify({'info': info, 'error': x})
 

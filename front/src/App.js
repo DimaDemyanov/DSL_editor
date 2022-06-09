@@ -37,6 +37,7 @@ function App() {
   const FRONT_URL = process.env.REACT_APP_FRONT_URL
 
   const AST_URL = SERVER_URL + '/ast'
+  const SYNTAX_DIAGRAM_URL = SERVER_URL + '/syntax-diagram'
   const INTERPRETER_URL = SERVER_URL + '/interpreter'
   const FILES_URL = SERVER_URL + '/files'
   const CODE_URL = SERVER_URL + '/code'
@@ -81,6 +82,36 @@ function App() {
 
   const onClickChangeGrammar = async (e) => {
     store.dispatch({type: "WRITING_GRAMMAR"})
+  }
+
+  const onClickSyntaxDiagram = async (e) => {
+    save(refLU.current.editor.getValue(),
+      refLD.current.editor.getValue(),
+      refRU.current.editor.getValue())
+
+    console.log('Sending request to render syntax diagram ' + SYNTAX_DIAGRAM_URL)
+
+    let request = await fetch(SYNTAX_DIAGRAM_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({
+        "syntax": refLD.current.editor.getValue()
+      })
+    });
+
+    let response = await request.json();
+    
+    if (response.error === 0) {
+      console.log('Opening ' + FILES_URL + '/' + response.info)
+      window.open(FILES_URL + '/' + response.info)
+      document.getElementById('errorMsg').innerText = ""
+    }
+    else {
+      document.getElementById('errorMsg').innerText = response.info
+    }
   }
 
   const onClickAST = async (e) => {
@@ -207,12 +238,14 @@ function App() {
       <div className="App">
       <Result onClickSetGrammar={onClickSetGrammar}
               onClickChangeGrammar={onClickChangeGrammar}
+              onClickSyntaxDiagram={onClickSyntaxDiagram}
               onClickAST={onClickAST} 
               onClickInterpreter={onClickInterpreter} 
               onClickCode={onClickCode} 
               onClickDiagram={onClickDiagram} 
               error={error} />
         <SplitPane
+          className="editors-container"
           split="vertical"
           onChange={editorOnResize(refLU, refLD, refRU)}
         >

@@ -2,13 +2,13 @@ import os
 import re
 import shutil
 import subprocess
-from sys import platform as _platform
 from datetime import datetime
+from sys import platform as _platform
 
 from graphviz import Source
 
-
 ANTLR_LAUNCH = 'antlr4'
+RRD_LAUNCH = 'rrd'
 if _platform == "win32" or _platform == "win64":
     PYTHON_LAUNCH = 'python'
     # On Windows, ANTLR should be launched with subprocess with shell=True argument
@@ -51,8 +51,9 @@ def createFiles(source, syntax, grammarName):
         os.mkdir(grammarName)
     with open(os.path.join(grammarName, grammarName + '.g4'), 'wb') as temp_file:
         temp_file.write(syntax.encode('UTF-8'))
-    with open(os.path.join(grammarName, 'program'), 'wb') as temp_file:
-        temp_file.write(source.encode('UTF-8'))
+    if source:
+        with open(os.path.join(grammarName, 'program'), 'wb') as temp_file:
+            temp_file.write(source.encode('UTF-8'))
 
 
 def makeTemplate(grammarName, firstNode):
@@ -68,9 +69,47 @@ def makeTemplate(grammarName, firstNode):
     with open(os.path.join(grammarName, 'interpreter.py'), 'w') as f:
         f.write(s)
 
+# Tseytin Iteration: P#Q = (P Q)* P
+# Often used for enumerations like (STRING COMMA)* STRING
+def resolveTseytinIteration(syntax):
+    new_syntax = ''
 
-def buildGrammar(source, syntax):
+    for line_number, line in enumerate(syntax.splitlines()):
+        line = line.replace('#', ' # ')
+        words = line.split()
+        new_words = []
+        skipNext = False
+        for i, _ in enumerate(words):
+            if skipNext:
+                skipNext = False
+                continue
+            if (words[i] == '#'):
+                if i == 0 or i == len(words) - 1:
+                    raise Exception('Tseytin iteration cant be parsed at line: ' + line_number)
+                new_words[i - 1] = '(' + words[i - 1]
+                new_words.append(words[i + 1] + ')*')
+                new_words.append(words[i - 1])
+                skipNext = True
+            else:
+                new_words.append(words[i])
+
+        new_line = ''
+        for i, word in enumerate(new_words):
+            new_line = new_line + word + ' '
+
+        new_syntax = new_syntax + new_line
+
+    return new_syntax
+
+def preProcess(source, syntax, tseytinEnabled = True):
     print('Getting grammar name and the first token')
+
+    try:
+        syntax = resolveTseytinIteration(syntax)
+    except Exception as m:
+        print(m)
+        print('file format error')
+        return str(m.output), None
 
     try:
         (grammarName, firstNode) = findNameAndStartToken(syntax)
@@ -78,7 +117,7 @@ def buildGrammar(source, syntax):
     except Exception as m:
         print(m)
         print('file format error')
-        return 'file format error', -1, None
+        return 'file format error', None
 
     print('Saving source and syntax')
     try:
@@ -86,9 +125,16 @@ def buildGrammar(source, syntax):
     except Exception as m:
         print(m)
         print('file system error')
-        return 'file system error', -1, None
+        return 'file system error', None
 
-    print('Processing syntax with ANTLR')
+    return grammarName, firstNode
+
+
+def buildGrammar(source, syntax):
+    (grammarName, firstNode) = preProcess(source, syntax)
+
+    print('Processing syntax with ANTLR for grammar: ' + grammarName)
+
     try:
         grammar_file_path = grammarName + '/' + grammarName + '.g4'
         language = '-Dlanguage=Python3'
@@ -102,8 +148,28 @@ def buildGrammar(source, syntax):
         print('ANTLR error: ' + str(m))
         return 'ANTLR error: ' + re.sub('.*g4:', '', str(m.output)).replace('\\r\\n', '\n'), -1, None
 
+    print('Syntax with ANTLR is successfully processed for grammar: ' + grammarName)
+
     return grammarName, 0, firstNode
 
+
+def buildSyntaxDiagram(syntax):
+    grammarName, firstNode = preProcess(None, syntax)
+
+    print('Generating syntax diagram for grammar: ' + grammarName)
+
+    try:
+        grammar_file_path = grammarName + '/' + grammarName + '.g4'
+        antlr_args = [RRD_LAUNCH, '--simple', '--out', grammarName + '.html', grammar_file_path]
+
+        subprocess.check_output(antlr_args, stderr=subprocess.STDOUT, shell=IS_WINDOWS)
+    except Exception as m:
+        print('Syntax diagram rendering error: ' + str(m))
+        return 'Syntax diagram rendering error: ' + str(m.output), None
+
+    print('Successfully generated syntax diagram for grammar: ' + grammarName)
+
+    return grammarName + '/' + grammarName + '.html', 0
 
 def buildAST(source, syntax):
     grammarName, rc, firstNode = buildGrammar(source, syntax)
@@ -112,7 +178,7 @@ def buildAST(source, syntax):
     try:
         makeTemplate(grammarName, firstNode)
         subprocess.check_output([PYTHON_LAUNCH, 'interpreter.py', 'program'], stderr=subprocess.STDOUT,
-                                    cwd=grammarName)
+                                cwd=grammarName)
         print("Subprocess check_output finished ")
     except Exception as m:
         print(m)
