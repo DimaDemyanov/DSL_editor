@@ -29,6 +29,23 @@
   color: #61dafb;
 }
 
+.projects-list-container {
+  width: 50%;
+}
+
+.project-explorer {
+  /* display: flex; */
+  /* flex-direction: column; */
+}
+
+.add-project-button{
+  padding: 20px;
+  margin: 4px 2px;
+  /* top: 15px;
+  left: 25px;
+  bottom: 15px; */
+} 
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
@@ -37,3 +54,5 @@
     transform: rotate(360deg);
   }
 }
+
+@use "@material/button/styles";

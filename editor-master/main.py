@@ -1,4 +1,5 @@
 import sys
+import os
 
 from flask import Flask, send_from_directory, request, make_response
 from flask import jsonify
@@ -32,7 +33,6 @@ app.add_url_rule("/healthcheck", "healthcheck", view_func=lambda: health.run())
 app.add_url_rule("/environment", "environment", view_func=lambda: envdump.run())
 
 @app.route('/login', methods=['POST'])
-# @cross_origin()
 def login_post():
     username = request.json['username']
     # password = request.json['password']
@@ -57,15 +57,14 @@ def login_post():
 
 @app.after_request
 def after_request(response):
-    # response.headers["Access-Control-Allow-Origin"] = "*"
     response.headers["Access-Control-Allow-Credentials"] = "true"
     return response
 
 @app.before_request
 def before_request():
     print('Cookies: ' + str(request.cookies))
-    print('Username' + str(request.headers.get('Username')))
-    # print(str(request.headers))
+    request.username = request.headers.get('Username')
+    print('Username ' + str(request.username))
 
 @app.route("/check-grammar", methods=['POST'])
 def check_grammar():
@@ -133,9 +132,19 @@ def diagram():
 def get_file(path):
     return send_from_directory('public', path)
 
-# @app.route('/files/AST/<path:path>')
-# def get_ast_picture(path):
-#     return send_from_directory('public', path)
+@app.route('/get-user-projects')
+def get_user_projects():
+    print('Get user project received for: ' + request.username)
+
+    rootdir = 'dsls/' + request.username
+
+    projects = []
+    if not os.path.exists(rootdir):
+        return jsonify({'projects': projects})
+    for it in os.scandir(rootdir):
+        if it.is_dir():
+           projects.append(it.name)
+    return jsonify({'projects': projects})
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8083)

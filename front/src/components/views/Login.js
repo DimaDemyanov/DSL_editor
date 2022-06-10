@@ -64,7 +64,7 @@ const Login = () => {
             let response = await request.json()
 
             console.log(response)
-            if (request.status != 200) {
+            if (request.status !== 200) {
                 alert('Unable to login');
             } else {
                 console.log('DIMA ' + response)
@@ -72,7 +72,7 @@ const Login = () => {
                 setValidate({});
                 setUsername('');
                 setPassword('');
-                history.push('/editor')
+                history.push('/projects-explorer')
             }
         }
     }

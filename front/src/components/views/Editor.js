@@ -1,21 +1,17 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import SplitPane from 'react-split-pane';
 import Pane from 'react-split-pane/lib/Pane';
 import { SourceCode } from '../SourceCode'
 import ProgramSourceCode from '../SourceCode/ProgramSourceCode';
 import GrammarSourceCode from '../SourceCode/GrammarSourceCode';
 import Result from '../Result/Result'
-// import './App.css';
+import fetchPostJson from '../../utilities/Queries'
 
 import "ace-builds/src-noconflict/mode-java";
 import "ace-builds/src-noconflict/theme-github";
 
 import { Provider } from "react-redux";
 import store from '../../store';
-
-function onChange(newValue) {
-  console.log("change", newValue);
-}
 
 function save(sourceCode, syntax, semantics) {
   localStorage.setItem("sourceCode", sourceCode)
@@ -34,7 +30,7 @@ function Editor() {
   }
 
   const SERVER_URL = process.env.REACT_APP_SERVER_URL
-  const FRONT_URL = process.env.REACT_APP_FRONT_URL
+//   const FRONT_URL = process.env.REACT_APP_FRONT_URL
 
   const AST_URL = SERVER_URL + '/ast'
   const SYNTAX_DIAGRAM_URL = SERVER_URL + '/syntax-diagram'
@@ -46,22 +42,6 @@ function Editor() {
 
   const error = {
     value: ''
-  }
-
-  const fetchPostJson = async (url, json) => fetch(url, {
-        method: 'POST',
-        headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'username': getCookieByName('username')
-        },
-        body: json
-    }
-  );
-
-  function getCookieByName(name) {
-    var match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-    if (match) return match[2];
   }
 
   const onClickSetGrammar = async (e) => {
