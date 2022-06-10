@@ -32,6 +32,8 @@ envdump = EnvironmentDump()
 app.add_url_rule("/healthcheck", "healthcheck", view_func=lambda: health.run())
 app.add_url_rule("/environment", "environment", view_func=lambda: envdump.run())
 
+PROJECTS_DIR = 'dsls/'
+
 @app.route('/login', methods=['POST'])
 def login_post():
     username = request.json['username']
@@ -55,48 +57,70 @@ def login_post():
     # resp.headers["Access-Control-Allow-Credentials"] = "true"
     return resp
 
+DIR_NOT_DEFINED_JSON_RESPONSE = {'info': 'Project is not found', 'error': -1}
+
 @app.after_request
 def after_request(response):
     response.headers["Access-Control-Allow-Credentials"] = "true"
+    # response.headers["Access-Control-Request-Headers"] = response.headers["Access-Control-Request-Headers"] + ",project"
+
     return response
 
 @app.before_request
 def before_request():
-    print('Cookies: ' + str(request.cookies))
     request.username = request.headers.get('Username')
-    print('Username ' + str(request.username))
+    print('Username: ' + str(request.username))
+    request.project_name = request.headers.get('Project')
+    print('Project name: ' + str(request.project_name))
+
+    request.is_dir_defined = request.username and request.project_name
+
+    request.dir = os.path.join(PROJECTS_DIR + str(request.username), str(request.project_name))
+
 
 @app.route("/check-grammar", methods=['POST'])
 def check_grammar():
+    if not request.is_dir_defined:
+        return DIR_NOT_DEFINED_JSON_RESPONSE
+
     source = request.json['source']
     syntax = request.json['syntax']
     if source == '':
         return jsonify({'info': 'Source not found', 'error': -1})
-    info, x, _ = buildGrammar(source, syntax)
+    info, x, _ = buildGrammar(source, syntax, request.dir)
     return jsonify({'info': info if x != -1 else 0, 'error': 0 if x != -1 else info})
 
 @app.route("/syntax-diagram", methods=['POST'])
 def syntax_diagram():
+    if not request.is_dir_defined:
+        return jsonify(DIR_NOT_DEFINED_JSON_RESPONSE)
+
     syntax = request.json['syntax']
     if syntax == '':
         return jsonify({'info': 'Syntax not found', 'error': -1})
-    (info, x) = buildSyntaxDiagram(syntax)
+    (info, x) = buildSyntaxDiagram(syntax, request.dir)
     return jsonify({'info': info, 'error': x})
 
 @app.route("/ast", methods=['POST'])
 def ast():
+    if not request.is_dir_defined:
+        return jsonify(DIR_NOT_DEFINED_JSON_RESPONSE)
+
     source = request.json['source']
     syntax = request.json['syntax']
     if source == '':
         return jsonify({'info': 'Source not found', 'error': -1})
     if syntax == '':
         return jsonify({'info': 'Syntax not found', 'error': -1})
-    (info, x) = buildAST(source, syntax)
+    (info, x) = buildAST(source, syntax, request.dir)
     return jsonify({'info': info, 'error': x})
 
 
 @app.route("/interpreter", methods=['POST'])
 def interpreter():
+    if not request.is_dir_defined:
+        return jsonify(DIR_NOT_DEFINED_JSON_RESPONSE)
+
     source = request.json['source']
     syntax = request.json['syntax']
     if source == '':
@@ -109,6 +133,9 @@ def interpreter():
 
 @app.route("/code", methods=['POST'])
 def code():
+    if not request.is_dir_defined:
+        return jsonify(DIR_NOT_DEFINED_JSON_RESPONSE)
+
     symantic = request.json['symantic']
     if symantic == '':
         return jsonify({'info': 'Symantic not found', 'error': -1})
@@ -116,27 +143,34 @@ def code():
     with open('symantic.txt', 'w', encoding='utf-8') as file:
         file.write(symantic)
 
-    (info, x) = buildCode(symantic)
+    (info, x) = buildCode(symantic, request.dir)
     return jsonify({'info': info, 'error': x})
 
 
 @app.route("/diagram", methods=['POST'])
 def diagram():
+    if not request.is_dir_defined:
+        return jsonify(DIR_NOT_DEFINED_JSON_RESPONSE)
+
     symantic = request.json['symantic']
     if symantic == '':
         return jsonify({'info': 'Symantic not found', 'error': -1})
-    (info, x) = buildDiagram(symantic)
+    (info, x) = buildDiagram(symantic, request.dir)
     return jsonify({'info': info, 'error': x})
 
 @app.route('/files/<path:path>')
 def get_file(path):
-    return send_from_directory('public', path)
+    # if not request.is_dir_defined:
+    #     return jsonify(DIR_NOT_DEFINED_JSON_RESPONSE)
+
+    return send_from_directory('', path)
+
 
 @app.route('/get-user-projects')
 def get_user_projects():
     print('Get user project received for: ' + request.username)
 
-    rootdir = 'dsls/' + request.username
+    rootdir = PROJECTS_DIR + request.username
 
     projects = []
     if not os.path.exists(rootdir):
@@ -145,6 +179,26 @@ def get_user_projects():
         if it.is_dir():
            projects.append(it.name)
     return jsonify({'projects': projects})
+
+
+@app.route('/save')
+def get_user_projects():
+    pass
+
+
+@app.route('/get-sources')
+def get_user_projects():
+    pass
+
+
+@app.route('/create-project', methods=['POST'])
+def create_project():
+    print('Create  received for: ' + request.username + ',project name: ' + request.project_name)
+
+    os.mkdir(request.dir)
+
+    return jsonify({'status': 'Project created'})
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8083)

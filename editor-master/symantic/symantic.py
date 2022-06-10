@@ -275,7 +275,7 @@ def make_python(graphs, symanticName):
     return 0
 
 
-def buildDiagram(symantic):
+def buildDiagram(symantic, dir):
     try:
         symanticName = findSymanticName(symantic)
     except Exception as m:
@@ -297,7 +297,7 @@ def buildDiagram(symantic):
         return str(m), -1
 
     try:
-        createFiles(symanticName)
+        createFiles(os.path.join(dir, symanticName))
     except Exception as m:
         print(m)
         print('file system error')
@@ -317,19 +317,19 @@ def buildDiagram(symantic):
         return 'check error', -1
 
     try:
-        v.print_dict(symanticName)
+        v.print_dict(symanticName, dir)
     except Exception as m:
         print(m)
         print('error while creating dot file')
         return 'error while creating dot file', -1
 
     try:
-        graph = Source.from_file(os.path.join(symanticName, symanticName + '.dot'))
-        graph.render(filename=symanticName, directory=symanticName, format='svg')
-        target_path = 'public/diagram/' + symanticName + '.svg'
+        graph = Source.from_file(os.path.join(dir, symanticName, symanticName + '.dot'))
+        graph.render(filename=symanticName, directory=os.path.join(dir, symanticName), format='svg')
+        target_path = dir + '/public/diagram/' + symanticName + '.svg'
         os.makedirs(os.path.dirname(target_path), exist_ok=True)
         shutil.copyfile(
-            os.path.join(symanticName, symanticName + '.svg'),
+            os.path.join(dir, symanticName, symanticName + '.svg'),
             target_path)
     except Exception as m:
         print(m)
@@ -345,7 +345,7 @@ def removeComments(symantic):
 
     return result
 
-def buildCode(symantic):
+def buildCode(symantic, dir):
 
     try:
         symanticName = findSymanticName(symantic)
@@ -370,7 +370,7 @@ def buildCode(symantic):
         return str(m), -1
 
     try:
-        createFiles(symanticName)
+        createFiles(os.path.join(dir, symanticName))
     except Exception as m:
         print(m)
         print('file system error')
@@ -397,7 +397,7 @@ def buildCode(symantic):
 
     code_name = symanticName + '.py'
     try:
-        dest_path = os.path.join('public/symanthic/', code_name)
+        dest_path = os.path.join(dir + '/public/symanthic/', code_name)
         os.makedirs(os.path.dirname(dest_path), exist_ok=True)
         shutil.copyfile(
             os.path.join(symanticName, code_name),

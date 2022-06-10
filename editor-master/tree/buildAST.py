@@ -46,27 +46,28 @@ def findFirstNode(syntax):
         return words[ind][:end]
 
 
-def createFiles(source, syntax, grammarName):
-    if not os.path.exists(grammarName):
-        os.mkdir(grammarName)
-    with open(os.path.join(grammarName, grammarName + '.g4'), 'wb') as temp_file:
+def createFiles(source, syntax, grammarName, dir):
+    grammar_dir = os.path.join(dir, grammarName)
+    if not os.path.exists(grammar_dir):
+        os.mkdir(grammar_dir)
+    with open(os.path.join(grammar_dir, grammarName + '.g4'), 'wb') as temp_file:
         temp_file.write(syntax.encode('UTF-8'))
     if source:
-        with open(os.path.join(grammarName, 'program'), 'wb') as temp_file:
+        with open(os.path.join(grammar_dir, 'program'), 'wb') as temp_file:
             temp_file.write(source.encode('UTF-8'))
 
 
-def makeTemplate(grammarName, firstNode):
+def makeTemplate(grammarName, firstNode, dir):
     shutil.copyfile(
         os.path.join('tree', 'interpreter_template.py'),
-        os.path.join(grammarName, 'interpreter.py'))
-    s = open(os.path.join(grammarName, 'interpreter.py')).read()
+        os.path.join(dir, grammarName, 'interpreter.py'))
+    s = open(os.path.join(dir, grammarName, 'interpreter.py')).read()
     s = s.replace('(grammarName)', grammarName)
     s = s.replace('(firstNode)', firstNode)
     # add comments about automatic generation
     s = "# That file was generated automatically with DSL editor\n" + \
         f"# The moment of generation: {datetime.now().strftime(DATETIME_FORMAT)}\n\n\n" + s
-    with open(os.path.join(grammarName, 'interpreter.py'), 'w') as f:
+    with open(os.path.join(dir, grammarName, 'interpreter.py'), 'w') as f:
         f.write(s)
 
 # Tseytin Iteration: P#Q = (P Q)* P
@@ -101,7 +102,7 @@ def resolveTseytinIteration(syntax):
 
     return new_syntax
 
-def preProcess(source, syntax, tseytinEnabled = True):
+def preProcess(source, syntax, dir, tseytinEnabled = True):
     print('Getting grammar name and the first token')
 
     try:
@@ -121,7 +122,7 @@ def preProcess(source, syntax, tseytinEnabled = True):
 
     print('Saving source and syntax')
     try:
-        createFiles(source, syntax, grammarName)
+        createFiles(source, syntax, grammarName, dir)
     except Exception as m:
         print(m)
         print('file system error')
@@ -130,18 +131,15 @@ def preProcess(source, syntax, tseytinEnabled = True):
     return grammarName, firstNode
 
 
-def buildGrammar(source, syntax):
-    (grammarName, firstNode) = preProcess(source, syntax)
+def buildGrammar(source, syntax, dir):
+    (grammarName, firstNode) = preProcess(source, syntax, dir)
 
     print('Processing syntax with ANTLR for grammar: ' + grammarName)
 
     try:
-        grammar_file_path = grammarName + '/' + grammarName + '.g4'
+        grammar_file_path = os.path.join(dir, grammarName, grammarName + '.g4')
         language = '-Dlanguage=Python3'
-        if IS_WINDOWS:
-            antlr_args = [ANTLR_LAUNCH, language, '-o', grammarName, grammar_file_path]
-        else:
-            antlr_args = [ANTLR_LAUNCH, language, grammar_file_path]
+        antlr_args = [ANTLR_LAUNCH, language, grammar_file_path]
 
         subprocess.check_output(antlr_args, stderr=subprocess.STDOUT, shell=IS_WINDOWS)
     except Exception as m:
@@ -153,16 +151,17 @@ def buildGrammar(source, syntax):
     return grammarName, 0, firstNode
 
 
-def buildSyntaxDiagram(syntax):
-    grammarName, firstNode = preProcess(None, syntax)
+def buildSyntaxDiagram(syntax, dir):
+    grammarName, firstNode = preProcess(None, syntax, dir)
 
     print('Generating syntax diagram for grammar: ' + grammarName)
 
     try:
         grammar_file_path = grammarName + '/' + grammarName + '.g4'
-        antlr_args = [RRD_LAUNCH, '--simple', '--out', grammarName + '.html', grammar_file_path]
+        os.makedirs(dir + '/public/' + grammarName, exist_ok=True)
+        rrd_args = [RRD_LAUNCH, '--simple', '--out', dir + '/public/' + grammarName + '/' + grammarName + '.html', dir + '/' + grammar_file_path]
 
-        subprocess.check_output(antlr_args, stderr=subprocess.STDOUT, shell=IS_WINDOWS)
+        subprocess.check_output(rrd_args, stderr=subprocess.STDOUT, shell=IS_WINDOWS)
     except Exception as m:
         print('Syntax diagram rendering error: ' + str(m))
         return 'Syntax diagram rendering error: ' + str(m.output), None
@@ -171,14 +170,14 @@ def buildSyntaxDiagram(syntax):
 
     return grammarName + '/' + grammarName + '.html', 0
 
-def buildAST(source, syntax):
-    grammarName, rc, firstNode = buildGrammar(source, syntax)
+def buildAST(source, syntax, dir):
+    grammarName, rc, firstNode = buildGrammar(source, syntax, dir)
     if rc == -1:
         return grammarName, rc
     try:
-        makeTemplate(grammarName, firstNode)
+        makeTemplate(grammarName, firstNode, dir)
         subprocess.check_output([PYTHON_LAUNCH, 'interpreter.py', 'program'], stderr=subprocess.STDOUT,
-                                cwd=grammarName)
+                                cwd=dir + '/' + grammarName)
         print("Subprocess check_output finished ")
     except Exception as m:
         print(m)
@@ -186,15 +185,15 @@ def buildAST(source, syntax):
         s = re.findall(regex, m.output.decode('utf-8'), re.MULTILINE | re.IGNORECASE)
         return (s[0], -1) if len(s) > 0 else ("error while parse syntax", 1)
     try:
-        graph = Source.from_file(os.path.join(grammarName, grammarName + '.dot'))
-        graph.render(filename=grammarName, directory=grammarName, format='svg')  # raises exception
+        graph = Source.from_file(os.path.join(dir + '/' + grammarName, grammarName + '.dot'))
+        graph.render(filename=grammarName, directory=dir + '/' + grammarName, format='svg')  # raises exception
 
         svg_picture_name = 'AST/' + grammarName + '.svg'
 
-        dest_path = os.path.join('public/', svg_picture_name)
+        dest_path = os.path.join(dir + '/' +'public/', svg_picture_name)
         os.makedirs(os.path.dirname(dest_path), exist_ok=True)
         shutil.copyfile(
-            os.path.join(grammarName, grammarName + '.svg'),
+            os.path.join(dir + '/' + grammarName, grammarName + '.svg'),
             dest_path)
     except Exception as m:
         print(m)

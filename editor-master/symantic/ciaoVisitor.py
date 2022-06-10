@@ -24,9 +24,9 @@ class ciaoVisitor(ParseTreeVisitor):
         self.k = -1
 
 
-    def print_dict(self, symanticName):
+    def print_dict(self, symanticName, dir):
         # print(json.dumps(self.graphs[self.k], indent=2))
-        f = open(symanticName + '/' + symanticName + '.dot', "w")
+        f = open(dir + '/' + symanticName + '/' + symanticName + '.dot', "w")
         print("digraph {", sep='', file=f)
         print("compound=true;", sep='', file=f)
         ind = -1
