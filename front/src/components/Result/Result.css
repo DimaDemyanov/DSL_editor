@@ -27,6 +27,6 @@
   display: flex;
 }
 
-.error {
+.row-error {
   color: #dc4242;
 }

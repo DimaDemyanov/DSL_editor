@@ -8,7 +8,7 @@ import { connect } from "react-redux";
 function ResultTemplate(props) {
 
   return (
-    <div className="container">
+    <div className="buttons-container">
       <div className="editor-buttons-row">
         <div className="buttons-block">
           <div className="button set-grammar-button">
@@ -37,7 +37,7 @@ function ResultTemplate(props) {
           </div>
         </div>
       </div>
-      <div className="row error" id="errorMsg">
+      <div className="row-error" id="errorMsg">
         {props.error.value}
       </div>
     </div>

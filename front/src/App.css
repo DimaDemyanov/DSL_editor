@@ -34,17 +34,17 @@
 }
 
 .project-explorer {
-  /* display: flex; */
-  /* flex-direction: column; */
+
 }
 
 .add-project-button{
   padding: 20px;
   margin: 4px 2px;
-  /* top: 15px;
-  left: 25px;
-  bottom: 15px; */
 } 
+
+.default-container{
+  height: 100%;
+}
 
 @keyframes App-logo-spin {
   from {

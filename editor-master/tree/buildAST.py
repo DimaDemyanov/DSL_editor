@@ -98,7 +98,7 @@ def resolveTseytinIteration(syntax):
         for i, word in enumerate(new_words):
             new_line = new_line + word + ' '
 
-        new_syntax = new_syntax + new_line
+        new_syntax = new_syntax + new_line + '\n'
 
     return new_syntax
 

@@ -7,20 +7,26 @@ import Editor from "./components/views/Editor";
 import ProjectsExplorer from "./components/views/ProjectsExplorer";
 import MenuAppBar from "./components/views/MenuAppBar";
 
-const Auth = () => {
+const WithMenuContainer = () => (
+  <div className='default-container'>
+    <MenuAppBar />
+    <Route path='/projects-explorer' component={ProjectsExplorer} />
+    <Route path='/editor' component={Editor} />
+  </div>
+)
+
+const App = () => {
   return (
     <Router>
-      <MenuAppBar/>
       <Switch>
-        <Route path='/login' component={Login} />
+        <Route exact path="/" component={Login} />
+        <Route exact path="/login" component={Login} />
         <Route path='/register' component={Register} />
         <Route path='/forgot-password' component={Forgot} />
-        <Route path='/projects-explorer' component={ProjectsExplorer} />
-        <Route path='/editor' component={Editor} />
-        <Route path='/' component={Login} />
+        <Route component={WithMenuContainer} />
       </Switch>
     </Router>
   );
 }
 
-export default Auth;
+export default App;

@@ -16,12 +16,14 @@ import { useHistory } from "react-router-dom";
 export default function MenuAppBar() {
   const [auth, setAuth] = React.useState(true);
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const [showMenuButton, setShowMenuButton] = React.useState(true);
 
   const history = useHistory();
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setAuth(event.target.checked);
-  };
+  const toProjects = () => {
+    deleteCookie('project')
+    history.push('projects-explorer')
+  }
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -40,19 +42,28 @@ export default function MenuAppBar() {
     history.push('/')
   };
 
+  const menuButton = () => {
+    if (getCookieByName('project')) {
+        setShowMenuButton(true)
+    } else {
+        setShowMenuButton(false)
+    }
+  }
+
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
-        <Toolbar>
-          <IconButton
+        <Toolbar onChange={menuButton}>
+          {showMenuButton && <IconButton
             size="large"
             edge="start"
             color="inherit"
             aria-label="menu"
             sx={{ mr: 2 }}
+            onClick={toProjects}
           >
             <MenuIcon />
-          </IconButton>
+          </IconButton>}
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             {getCookieByName('project')}
           </Typography>
@@ -72,15 +83,7 @@ export default function MenuAppBar() {
               <Menu
                 id="menu-appbar"
                 anchorEl={anchorEl}
-                // anchorOrigin={{
-                //   vertical: 'top',
-                //   horizontal: 'right',
-                // }}
                 keepMounted
-                // transformOrigin={{
-                //   vertical: 'top',
-                //   horizontal: 'right',
-                // }}
                 open={Boolean(anchorEl)}
                 onClose={handleClose}
               >

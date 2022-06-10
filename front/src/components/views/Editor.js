@@ -72,6 +72,10 @@ function Editor() {
     }
 
     const onClickChangeGrammar = async (e) => {
+        save(refLU.current.editor.getValue(),
+        refLD.current.editor.getValue(),
+        refRU.current.editor.getValue())
+
         store.dispatch({ type: "WRITING_GRAMMAR" })
     }
 

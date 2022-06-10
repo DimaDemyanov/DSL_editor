@@ -75,6 +75,7 @@ def before_request():
 
     request.is_dir_defined = request.username and request.project_name
 
+    request.user_dir = os.path.join(PROJECTS_DIR + str(request.username))
     request.dir = os.path.join(PROJECTS_DIR + str(request.username), str(request.project_name))
 
 
@@ -182,12 +183,12 @@ def get_user_projects():
 
 
 @app.route('/save')
-def get_user_projects():
+def save_project():
     pass
 
 
 @app.route('/get-sources')
-def get_user_projects():
+def get_project():
     pass
 
 
@@ -195,7 +196,8 @@ def get_user_projects():
 def create_project():
     print('Create  received for: ' + request.username + ',project name: ' + request.project_name)
 
-    os.mkdir(request.dir)
+    os.makedirs(request.user_dir, exist_ok=True)
+    os.makedirs(request.dir, exist_ok=True)
 
     return jsonify({'status': 'Project created'})
 
