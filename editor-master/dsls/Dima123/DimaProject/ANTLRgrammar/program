@@ -3,6 +3,6 @@ grammar ASTgrammar;
     n : '[' txt  (c )* ']';
     l : '<' txt  (c )* '>';
     c : '{' txt '=' txt '}';
-    txt : SYMBOL ( SYMBOL)*;
-    SPACE: [ \\t\\r\\n] -> skip;
+    txt : SYMBOL ( SYMBOL )*;
+    SPACE: [ \r\n] -> skip;
     SYMBOL: ~( '(' | ')' | '[' | ']' | '<' | '>' | '{' | '}' );

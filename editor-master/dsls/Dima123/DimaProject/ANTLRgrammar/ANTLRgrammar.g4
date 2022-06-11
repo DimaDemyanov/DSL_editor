@@ -1,36 +1,50 @@
 grammar ANTLRgrammar; 
 
-grammar_: grammarDecl (lexer_rule | parser_rule)+; 
-grammarDecl : grammarType grammar_name SEMI; 
-lexer_rule : lexer_name COLON (operand)* SEMI; 
-operand : LBRACE? (string | lexer_name | parser_name ) OPERATION? RBRACE?; 
-parser_rule : parser_name COLON (operand)* SEMI; 
+grammar_: grammar_decl (lexer_command | lexer_rule | parser_rule )+; 
+grammar_decl : grammarType grammar_name SEMI; 
+lexer_command : lexer_name COLON alternative ARROW command SEMI; 
+lexer_rule : lexer_name COLON operand+ SEMI; 
+parser_rule : parser_name COLON operand+ SEMI; 
+operand : LBRACE operand RBRACE 
+// | LSBRACE operand RSBRACE 
+| operand POST_OPERATION 
+| PRED_OPERATION operand 
+| (string | lexer_name | parser_name)+; 
 grammarType : GRAMMAR; 
 grammar_name : (NAME | LEXER_NAME | PARSER_NAME); 
 lexer_name : LEXER_NAME; 
 parser_name : PARSER_NAME; 
+lexer_command_ : LEXER_COMMAND; 
 string : STRING; 
-// post_operation : string | lexer_name | parser_name | in_braces OPERATION; 
-// in_braces : LBRACE (string | lexer_name | parser_name | post_operation) RBRACE; 
+command : COMMAND; 
+alternative: ALTERNATIVE; 
 
 GRAMMAR : 'grammar'; 
+COMMAND: ('skip' | 'more'); 
+ALTERNATIVE: LSBRACE AL_SYM RSBRACE; 
 STRING : QUOTE SYM QUOTE; 
-LEXER_NAME: SMALL_LETTER SYM; 
-PARSER_NAME: BIG_LETTER SYM; 
+LEXER_NAME: BIG_LETTER SYM_NAME; 
+PARSER_NAME: SMALL_LETTER SYM_NAME; 
 NAME : (BIG_LETTER | SMALL_LETTER) SYM; 
 SEMI : ';'; 
 COLON : ':'; 
 QUOTE : '\''; 
-OPERATION : OPERATIONF; 
+POST_OPERATION : POST_OPERATIONF; 
+PRED_OPERATION : PRED_OPERATIONF; 
 
-// fragment PARSER_NAMEF : ('A' .. 'Z' | '_')+; 
-// fragment LEXER_NAMEF : ('a' .. 'z' | '_')+; 
-// fragment GRAMMAR_NAMEF : ('A' .. 'Z' | 'a' .. 'z')+; 
+
 fragment BIG_LETTER : 'A'..'Z'; 
 fragment SMALL_LETTER : 'a'..'z'; 
+LSBRACE : '['; 
+RSBRACE : ']'; 
+fragment AL_SYM : ('A'..'Z'| '\\t' | '\\r' | '\\n' | ' ' | 'a'..'z' | '0'..'9' | '_' | '-' | '.' | '(' | ')' | '{' | '}' | '[' | ']' | '<' | '>' | '=')*; 
+fragment SYM_NAME : ('A'..'Z'| '\t' | '\r' | '\n' | 'a'..'z' | '0'..'9' | '_')*; 
 fragment SYM : ('A'..'Z'| '\t' | '\r' | '\n' | 'a'..'z' | '0'..'9' | '_' | '-' | '.' | '(' | ')' | '{' | '}' | '[' | ']' | '<' | '>' | '=')*; 
-fragment OPERATIONF : '*' | '+' | '?'; 
-fragment LBRACE : '('; 
-fragment RBRACE : ')'; 
+fragment POST_OPERATIONF : '*' | '+' | '?'; 
+fragment PRED_OPERATIONF : '~'; 
+LBRACE : '('; 
+RBRACE : ')'; 
+
+ARROW : '->'; 
 
 SPACE: [ \t\r\n] -> skip; 
