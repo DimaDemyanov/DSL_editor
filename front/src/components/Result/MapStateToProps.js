@@ -1,3 +1,3 @@
 export default (state) => ({
-    changingGrammarActive: !state
-})
+  changingGrammarActive: !state,
+});

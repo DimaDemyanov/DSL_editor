@@ -1,1 +1,1 @@
-export * from './Result.js'
+export { default as Result } from './Result';

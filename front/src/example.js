@@ -1,5 +1,4 @@
-const sourceCodeExample =
-    `( [ + {shape=circle} ]
+const sourceCodeExample = `( [ + {shape=circle} ]
 
   < 0 {color=red} >
   ( [ A ] )
@@ -13,20 +12,18 @@ const sourceCodeExample =
     < 1 >
     ( [ C ] )
   )
-)`
+)`;
 
-const syntaxExample =
-    `grammar ASTgrammar;
+const syntaxExample = `grammar ASTgrammar;
     t : '(' n (l t )* ')';
     n : '[' txt  (c )* ']';
     l : '<' txt  (c )* '>';
     c : '{' txt '=' txt '}';
     txt : SYMBOL ( SYMBOL)*;
     SPACE: [ \\t\\r\\n] -> skip;
-    SYMBOL: ~( '(' | ')' | '[' | ']' | '<' | '>' | '{' | '}' );`
+    SYMBOL: ~( '(' | ')' | '[' | ']' | '<' | '>' | '{' | '}' );`;
 
-const semanticsExample =
-    `Tree
+const semanticsExample = `Tree
 VAR
   entryTreeFlag := False
   exitTreeFlag := False
@@ -97,5 +94,5 @@ STATE
   get_tree -> True / tree := nextTree(link) -> start_tree
   start_tree -> True / tree.entryTree() -> end_tree
   end_tree -> tree.ifExitTree() / exitLinkFlag := True -> exit
-`
-export {syntaxExample, semanticsExample, sourceCodeExample}
+`;
+export { syntaxExample, semanticsExample, sourceCodeExample };

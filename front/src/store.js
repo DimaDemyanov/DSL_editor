@@ -1,6 +1,6 @@
-import { createStore } from "redux";
+import { createStore } from 'redux';
 
-import { SourceCodeFieldReducer } from "./reducers"
+import { SourceCodeFieldReducer } from './reducers';
 
 const store = createStore(SourceCodeFieldReducer);
 

@@ -18,5 +18,8 @@ module.exports = {
     'react',
   ],
   rules: {
+    'no-use-before-define': 'off',
+    'import/prefer-default-export': 'off',
+    'default-param-last': 'off',
   },
 };

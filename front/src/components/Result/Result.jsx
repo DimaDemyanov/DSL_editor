@@ -1,12 +1,10 @@
 import React from 'react';
 import Button from '@material-ui/core/Button';
 import './Result.css';
-import MapStateToProps from "./MapStateToProps";
-
-import { connect } from "react-redux";
+import { connect } from 'react-redux';
+import MapStateToProps from './MapStateToProps';
 
 function ResultTemplate(props) {
-
   return (
     <div className="buttons-container">
       <div className="editor-buttons-row">
@@ -41,7 +39,7 @@ function ResultTemplate(props) {
         {props.error.value}
       </div>
     </div>
-  )
+  );
 }
 
-export default connect(MapStateToProps) (ResultTemplate)
+export default connect(MapStateToProps)(ResultTemplate);
