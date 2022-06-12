@@ -50,12 +50,10 @@ function Editor() {
       refRU.current.editor.getValue(),
     );
 
-    const request = await fetchPostJson(CHECK_GRAMMAR_URL, JSON.stringify({
+    const response = await fetchPostJson(CHECK_GRAMMAR_URL, JSON.stringify({
       source: refLU.current.editor.getValue(),
       syntax: refLD.current.editor.getValue(),
     }));
-
-    const response = await request.json();
 
     console.log(`Respone for setGrammar received: ${JSON.stringify(response)}`);
 
@@ -86,11 +84,9 @@ function Editor() {
 
     console.log(`Sending request to render syntax diagram ${SYNTAX_DIAGRAM_URL}`);
 
-    const request = await fetchPostJson(SYNTAX_DIAGRAM_URL, JSON.stringify({
+    const response = await fetchPostJson(SYNTAX_DIAGRAM_URL, JSON.stringify({
       syntax: refLD.current.editor.getValue(),
     }));
-
-    const response = await request.json();
 
     if (response.error === 0) {
       openResource(response.info);
@@ -109,12 +105,11 @@ function Editor() {
 
     console.log(`Sending request to build AST ${AST_URL}`);
 
-    const request = await fetchPostJson(AST_URL, JSON.stringify({
+    const response = await fetchPostJson(AST_URL, JSON.stringify({
       source: refLU.current.editor.getValue(),
       syntax: refLD.current.editor.getValue(),
     }));
 
-    const response = await request.json();
     if (response.error === 0) {
       openResource(response.info);
       document.getElementById('errorMsg').innerText = '';
@@ -132,12 +127,11 @@ function Editor() {
 
     console.log(`Sending request to build interpreter ${INTERPRETER_URL}`);
 
-    const request = await fetchPostJson(INTERPRETER_URL, JSON.stringify({
+    const response = await fetchPostJson(INTERPRETER_URL, JSON.stringify({
       source: refLU.current.editor.getValue(),
       syntax: refLD.current.editor.getValue(),
     }));
 
-    const response = await request.json();
     if (response.error === 0) {
       openResource(response.info);
       document.getElementById('errorMsg').innerText = '';
@@ -155,11 +149,10 @@ function Editor() {
 
     console.log(`Sending request to build interpreter ${CODE_URL}`);
 
-    const request = await fetchPostJson(CODE_URL, JSON.stringify({
+    const response = await fetchPostJson(CODE_URL, JSON.stringify({
       symantic: refRU.current.editor.getValue(),
     }));
 
-    const response = await request.json();
     if (response.error === 0) {
       openResource(response.info);
       document.getElementById('errorMsg').innerText = '';
@@ -175,11 +168,10 @@ function Editor() {
       refRU.current.editor.getValue(),
     );
 
-    const request = await fetchPostJson(DIAGRAM_URL, JSON.stringify({
+    const response = await fetchPostJson(DIAGRAM_URL, JSON.stringify({
       symantic: refRU.current.editor.getValue(),
     }));
 
-    const response = await request.json();
     if (response.error === 0) {
       openResource(response.info);
       document.getElementById('errorMsg').innerText = '';
