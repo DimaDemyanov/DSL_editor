@@ -12,12 +12,7 @@ import 'ace-builds/src-noconflict/mode-java';
 import 'ace-builds/src-noconflict/theme-github';
 
 import store from '../../store';
-
-function save(sourceCode, syntax, semantics) {
-  localStorage.setItem('sourceCode', sourceCode);
-  localStorage.setItem('syntax', syntax);
-  localStorage.setItem('semantics', semantics);
-}
+import { LocalStorage } from '../../helpers/localStorage';
 
 function openResource(path) {
   console.log(`Opening ${FILES_URL}/dsls/${getCookieByName('username')}/${getCookieByName('project')}/public/${path}`);
@@ -49,18 +44,16 @@ function Editor() {
   };
 
   const onClickSetGrammar = async (e) => {
-    save(
+    LocalStorage.save(
       refLU.current.editor.getValue(),
       refLD.current.editor.getValue(),
       refRU.current.editor.getValue(),
     );
 
-    const request = await fetchPostJson(CHECK_GRAMMAR_URL, JSON.stringify({
+    const response = await fetchPostJson(CHECK_GRAMMAR_URL, JSON.stringify({
       source: refLU.current.editor.getValue(),
       syntax: refLD.current.editor.getValue(),
     }));
-
-    const response = await request.json();
 
     console.log(`Respone for setGrammar received: ${JSON.stringify(response)}`);
 
@@ -73,7 +66,7 @@ function Editor() {
   };
 
   const onClickChangeGrammar = async (e) => {
-    save(
+    LocalStorage.save(
       refLU.current.editor.getValue(),
       refLD.current.editor.getValue(),
       refRU.current.editor.getValue(),
@@ -83,7 +76,7 @@ function Editor() {
   };
 
   const onClickSyntaxDiagram = async (e) => {
-    save(
+    LocalStorage.save(
       refLU.current.editor.getValue(),
       refLD.current.editor.getValue(),
       refRU.current.editor.getValue(),
@@ -91,11 +84,9 @@ function Editor() {
 
     console.log(`Sending request to render syntax diagram ${SYNTAX_DIAGRAM_URL}`);
 
-    const request = await fetchPostJson(SYNTAX_DIAGRAM_URL, JSON.stringify({
+    const response = await fetchPostJson(SYNTAX_DIAGRAM_URL, JSON.stringify({
       syntax: refLD.current.editor.getValue(),
     }));
-
-    const response = await request.json();
 
     if (response.error === 0) {
       openResource(response.info);
@@ -106,7 +97,7 @@ function Editor() {
   };
 
   const onClickAST = async (e) => {
-    save(
+    LocalStorage.save(
       refLU.current.editor.getValue(),
       refLD.current.editor.getValue(),
       refRU.current.editor.getValue(),
@@ -114,12 +105,11 @@ function Editor() {
 
     console.log(`Sending request to build AST ${AST_URL}`);
 
-    const request = await fetchPostJson(AST_URL, JSON.stringify({
+    const response = await fetchPostJson(AST_URL, JSON.stringify({
       source: refLU.current.editor.getValue(),
       syntax: refLD.current.editor.getValue(),
     }));
 
-    const response = await request.json();
     if (response.error === 0) {
       openResource(response.info);
       document.getElementById('errorMsg').innerText = '';
@@ -129,7 +119,7 @@ function Editor() {
   };
 
   const onClickInterpreter = async (e) => {
-    save(
+    LocalStorage.save(
       refLU.current.editor.getValue(),
       refLD.current.editor.getValue(),
       refRU.current.editor.getValue(),
@@ -137,12 +127,11 @@ function Editor() {
 
     console.log(`Sending request to build interpreter ${INTERPRETER_URL}`);
 
-    const request = await fetchPostJson(INTERPRETER_URL, JSON.stringify({
+    const response = await fetchPostJson(INTERPRETER_URL, JSON.stringify({
       source: refLU.current.editor.getValue(),
       syntax: refLD.current.editor.getValue(),
     }));
 
-    const response = await request.json();
     if (response.error === 0) {
       openResource(response.info);
       document.getElementById('errorMsg').innerText = '';
@@ -152,7 +141,7 @@ function Editor() {
   };
 
   const onClickCode = async (e) => {
-    save(
+    LocalStorage.save(
       refLU.current.editor.getValue(),
       refLD.current.editor.getValue(),
       refRU.current.editor.getValue(),
@@ -160,11 +149,10 @@ function Editor() {
 
     console.log(`Sending request to build interpreter ${CODE_URL}`);
 
-    const request = await fetchPostJson(CODE_URL, JSON.stringify({
+    const response = await fetchPostJson(CODE_URL, JSON.stringify({
       symantic: refRU.current.editor.getValue(),
     }));
 
-    const response = await request.json();
     if (response.error === 0) {
       openResource(response.info);
       document.getElementById('errorMsg').innerText = '';
@@ -174,17 +162,16 @@ function Editor() {
   };
 
   const onClickDiagram = async (e) => {
-    save(
+    LocalStorage.save(
       refLU.current.editor.getValue(),
       refLD.current.editor.getValue(),
       refRU.current.editor.getValue(),
     );
 
-    const request = await fetchPostJson(DIAGRAM_URL, JSON.stringify({
+    const response = await fetchPostJson(DIAGRAM_URL, JSON.stringify({
       symantic: refRU.current.editor.getValue(),
     }));
 
-    const response = await request.json();
     if (response.error === 0) {
       openResource(response.info);
       document.getElementById('errorMsg').innerText = '';

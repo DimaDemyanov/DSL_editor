@@ -12,25 +12,33 @@ function deleteCookie(name) {
   }
 }
 
-const fetchGet = async (url) => fetch(url, {
-  method: 'GET',
-  headers: {
-    'Content-Type': 'application/json',
-    Accept: 'application/json',
-    username: getCookieByName('username'),
-  },
-});
+const fetchGet = async (url) => {
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      username: getCookieByName('username'),
+    },
+  });
 
-const fetchPostJson = async (url, json) => fetch(url, {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    Accept: 'application/json',
-    username: getCookieByName('username'),
-    project: getCookieByName('project'),
-  },
-  body: json,
-});
+  return response.json();
+};
+
+const fetchPostJson = async (url, json) => {
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      username: getCookieByName('username'),
+      project: getCookieByName('project'),
+    },
+    body: json,
+  });
+
+  return response.json();
+};
 
 export {
   fetchGet, fetchPostJson, getCookieByName, deleteCookie,

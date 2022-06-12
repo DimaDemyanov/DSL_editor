@@ -38,6 +38,10 @@ function ProjectsExplorer() {
     history.push('/editor');
   }
 
+  // Лучше вынести в отдельный компонент.
+  // Вообще старайся уменьшать компоненты, 
+  // например если у тебя стейт (useState) меняет что-то только в одной маленькой части,
+  // то просто вынеси эту часть со стейтом в компонент
   function Project(name, key) {
     return (
       <ListItem
@@ -67,9 +71,8 @@ function ProjectsExplorer() {
   const [newProjectName, setNewProjectName] = useState('');
 
   const generate = async () => {
-    const request = await fetchGet(GET_PROJECTS_URL);
+    const response = await fetchGet(GET_PROJECTS_URL);
 
-    const response = await request.json();
     console.log(`Projects list received: ${response}`);
 
     const map = response.projects.map((name) => Project(name, name));
@@ -94,9 +97,8 @@ function ProjectsExplorer() {
     setOpen(false);
 
     document.cookie = `project=${newProjectName}`;
-    const request = await fetchPostJson(CREATE_PROJECT_URL);
+    const response = await fetchPostJson(CREATE_PROJECT_URL);
 
-    const response = await request.json();
     console.log(`Project created: ${response}`);
 
     projectsState = null;
