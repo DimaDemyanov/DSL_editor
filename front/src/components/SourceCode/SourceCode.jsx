@@ -1,5 +1,5 @@
 import React from 'react';
-import AceEditor from "react-ace";
+import AceEditor from 'react-ace';
 
 export function SourceCode(props) {
   return (
@@ -14,7 +14,7 @@ export function SourceCode(props) {
       name="SourceCode"
       fontSize={14}
       showPrintMargin={false}
-      showGutter={true}
+      showGutter
       highlightActiveLine={props.highlightActiveLine}
       readOnly={props.readOnly ? props.readOnly : false}
       // maxLines="Infinity"
@@ -26,7 +26,8 @@ export function SourceCode(props) {
         enableLiveAutocompletion: false,
         enableSnippets: false,
         showLineNumbers: true,
-        tabSize: 2
-      }} />
-  )
+        tabSize: 2,
+      }}
+    />
+  );
 }

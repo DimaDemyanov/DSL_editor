@@ -1,1 +1,1 @@
-export * from './SourceCodeFieldReducer.js'
+export * from './SourceCodeFieldReducer';
