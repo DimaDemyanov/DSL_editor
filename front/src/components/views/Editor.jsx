@@ -12,12 +12,7 @@ import 'ace-builds/src-noconflict/mode-java';
 import 'ace-builds/src-noconflict/theme-github';
 
 import store from '../../store';
-
-function save(sourceCode, syntax, semantics) {
-  localStorage.setItem('sourceCode', sourceCode);
-  localStorage.setItem('syntax', syntax);
-  localStorage.setItem('semantics', semantics);
-}
+import { LocalStorage } from '../../helpers/localStorage';
 
 function openResource(path) {
   console.log(`Opening ${FILES_URL}/dsls/${getCookieByName('username')}/${getCookieByName('project')}/public/${path}`);
@@ -49,7 +44,7 @@ function Editor() {
   };
 
   const onClickSetGrammar = async (e) => {
-    save(
+    LocalStorage.save(
       refLU.current.editor.getValue(),
       refLD.current.editor.getValue(),
       refRU.current.editor.getValue(),
@@ -73,7 +68,7 @@ function Editor() {
   };
 
   const onClickChangeGrammar = async (e) => {
-    save(
+    LocalStorage.save(
       refLU.current.editor.getValue(),
       refLD.current.editor.getValue(),
       refRU.current.editor.getValue(),
@@ -83,7 +78,7 @@ function Editor() {
   };
 
   const onClickSyntaxDiagram = async (e) => {
-    save(
+    LocalStorage.save(
       refLU.current.editor.getValue(),
       refLD.current.editor.getValue(),
       refRU.current.editor.getValue(),
@@ -106,7 +101,7 @@ function Editor() {
   };
 
   const onClickAST = async (e) => {
-    save(
+    LocalStorage.save(
       refLU.current.editor.getValue(),
       refLD.current.editor.getValue(),
       refRU.current.editor.getValue(),
@@ -129,7 +124,7 @@ function Editor() {
   };
 
   const onClickInterpreter = async (e) => {
-    save(
+    LocalStorage.save(
       refLU.current.editor.getValue(),
       refLD.current.editor.getValue(),
       refRU.current.editor.getValue(),
@@ -152,7 +147,7 @@ function Editor() {
   };
 
   const onClickCode = async (e) => {
-    save(
+    LocalStorage.save(
       refLU.current.editor.getValue(),
       refLD.current.editor.getValue(),
       refRU.current.editor.getValue(),
@@ -174,7 +169,7 @@ function Editor() {
   };
 
   const onClickDiagram = async (e) => {
-    save(
+    LocalStorage.save(
       refLU.current.editor.getValue(),
       refLD.current.editor.getValue(),
       refRU.current.editor.getValue(),
