@@ -56,7 +56,7 @@ function ResultTemplate(props) {
           onChange={handleChange}
         >
           <ToggleButton value="text">Text</ToggleButton>
-          <ToggleButton value="wysiwyg">WYSIWYG</ToggleButton>
+          <ToggleButton value="markdown">MARKDOWN</ToggleButton>
         </ToggleButtonGroup>
         <Button className="add-project-button" variant="contained" onClick={handleClickOpen}>Upload handler</Button>
         <Dialog open={open} onClose={handleClose}>

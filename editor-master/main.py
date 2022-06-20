@@ -208,7 +208,7 @@ def get_project():
     symantic_path = os.path.join(request.dir, 'symantic.txt')
 
     source = ''
-    syntax = 'grammar **Grammar name**:\n' \
+    syntax = 'grammar **Grammar name**;\n' \
              '**parser rules**\n' \
              '\n' \
              '**lexer rules**'
@@ -219,15 +219,15 @@ def get_project():
                'STATE'
 
     if (os.path.exists(source_path)):
-        with open(source_path, 'r') as temp_file:
+        with open(source_path, 'r', encoding='UTF-8') as temp_file:
             source = temp_file.read()
 
     if (os.path.exists(syntax_path)):
-        with open(syntax_path, 'r') as temp_file:
+        with open(syntax_path, 'r', encoding='UTF-8') as temp_file:
             syntax = temp_file.read()
 
     if (os.path.exists(symantic_path)):
-        with open(symantic_path, 'r') as temp_file:
+        with open(symantic_path, 'r', encoding='UTF-8') as temp_file:
             symantic = temp_file.read()
 
     return jsonify({'info': 'ok', 'error': '', 'source': source, 'syntax': syntax, 'symantic': symantic})

@@ -101,7 +101,7 @@ function Login() {
                     id="username"
                     name="username"
                     value={username}
-                    placeholder="username"
+                    placeholder="Username"
                     onChange={(e) => setUsername(e.target.value)}
                   />
 

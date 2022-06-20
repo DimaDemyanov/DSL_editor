@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { styled } from '@mui/material/styles';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
@@ -32,6 +32,7 @@ let projectsState = null;
 
 function ProjectsExplorer() {
   const history = useHistory();
+
 
   function onProjectSelect(projectName) {
     document.cookie = `project=${projectName}`;
