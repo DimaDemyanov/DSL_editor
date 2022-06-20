@@ -19,6 +19,7 @@ const fetchGet = async (url) => {
       'Content-Type': 'application/json',
       Accept: 'application/json',
       username: getCookieByName('username'),
+      project: getCookieByName('project'),
     },
   });
 

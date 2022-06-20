@@ -3,11 +3,11 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import Login from './components/views/Login';
 import Register from './components/views/Register';
 import Forgot from './components/views/Forgot';
-import Editor from './components/views/Editor';
+import DSLEditor from './components/views/DSLEditor';
 import ProjectsExplorer from './components/views/ProjectsExplorer';
 import MenuAppBar from './components/views/MenuAppBar';
-import { LocalStorage, saveExamples } from './helpers/localStorage';
-import { syntaxExample, semanticsExample, sourceCodeExample } from '../example';
+import { LocalStorage } from './helpers/localStorage';
+import { syntaxExample, semanticsExample, sourceCodeExample } from './example';
 
 
 function WithMenuContainer() {
@@ -15,7 +15,7 @@ function WithMenuContainer() {
     <div className="default-container">
       <MenuAppBar />
       <Route path="/projects-explorer" component={ProjectsExplorer} />
-      <Route path="/editor" component={Editor} />
+      <Route path="/editor" component={DSLEditor} />
     </div>
   );
 }

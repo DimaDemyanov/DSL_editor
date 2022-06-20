@@ -20,7 +20,8 @@ export function SourceCode(props) {
       // maxLines="Infinity"
       value={props.value}
       ref={props.fRef}
-      onLoad={() => console.log('Editor is loaded')}
+      // onLoad={() => console.log('Editor is loaded')}
+      onChange={props.onChange}
       setOptions={{
         enableBasicAutocompletion: false,
         enableLiveAutocompletion: false,
