@@ -30,3 +30,7 @@
 .row-error {
   color: #dc4242;
 }
+
+.MuiMenuItem-root {
+  display: block;
+}

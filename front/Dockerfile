@@ -6,6 +6,7 @@ ENV PATH /app/node_modules/.bin:$PATH
 
 COPY package.json ./
 COPY .env.production ./
+COPY .env ./
 
 ADD src ./src
 ADD public ./public

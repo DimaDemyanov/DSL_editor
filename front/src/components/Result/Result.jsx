@@ -73,9 +73,9 @@ function ResultTemplate(props) {
                 label="Age"
                 onChange={handleChange}
               >
-                <MenuItem value={10}>Input Handler</MenuItem>
-                <MenuItem value={20}>AST Handler</MenuItem>
-                <MenuItem value={30}>Output hadnler</MenuItem>
+                <MenuItem style={{display: "block"}} value={10}>Input Handler</MenuItem>
+                <MenuItem style={{display: "block"}} value={20}>AST Handler</MenuItem>
+                <MenuItem style={{display: "block"}} value={30}>Output hadnler</MenuItem>
               </Select>
             </FormControl>
             <Button
