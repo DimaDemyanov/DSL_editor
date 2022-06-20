@@ -86,8 +86,7 @@ def check_grammar():
 
     source = request.json['source']
     syntax = request.json['syntax']
-    if source == '':
-        return jsonify({'info': 'Source not found', 'error': -1})
+
     info, x, _ = buildGrammar(source, syntax, request.dir)
     return jsonify({'info': info if x != -1 else 0, 'error': 0 if x != -1 else info})
 
@@ -182,14 +181,56 @@ def get_user_projects():
     return jsonify({'projects': projects})
 
 
-@app.route('/save')
+@app.route('/save', methods=['POST'])
 def save_project():
-    pass
+    if not request.is_dir_defined:
+        return jsonify(DIR_NOT_DEFINED_JSON_RESPONSE)
 
+    source = request.json['source']
+    syntax = request.json['syntax']
+    symantic = request.json['symantic']
+
+    with open(os.path.join(request.dir, 'source.txt'), 'wb') as temp_file:
+        temp_file.write(source.encode('UTF-8'))
+    with open(os.path.join(request.dir, 'syntax.txt'), 'wb') as temp_file:
+        temp_file.write(syntax.encode('UTF-8'))
+    with open(os.path.join(request.dir, 'symantic.txt'), 'wb') as temp_file:
+        temp_file.write(symantic.encode('UTF-8'))
+
+    return jsonify({'info': 'ok', 'error': ''})
 
 @app.route('/get-sources')
 def get_project():
-    pass
+    if not request.is_dir_defined:
+        return jsonify(DIR_NOT_DEFINED_JSON_RESPONSE)
+    source_path = os.path.join(request.dir, 'source.txt')
+    syntax_path = os.path.join(request.dir, 'syntax.txt')
+    symantic_path = os.path.join(request.dir, 'symantic.txt')
+
+    source = ''
+    syntax = 'grammar **Grammar name**:\n' \
+             '**parser rules**\n' \
+             '\n' \
+             '**lexer rules**'
+    symantic = '**Object name**\n' \
+               'VAR\n' \
+               'REQUIRED\n' \
+               'PROVIDED\n' \
+               'STATE'
+
+    if (os.path.exists(source_path)):
+        with open(source_path, 'r') as temp_file:
+            source = temp_file.read()
+
+    if (os.path.exists(syntax_path)):
+        with open(syntax_path, 'r') as temp_file:
+            syntax = temp_file.read()
+
+    if (os.path.exists(symantic_path)):
+        with open(symantic_path, 'r') as temp_file:
+            symantic = temp_file.read()
+
+    return jsonify({'info': 'ok', 'error': '', 'source': source, 'syntax': syntax, 'symantic': symantic})
 
 
 @app.route('/create-project', methods=['POST'])
